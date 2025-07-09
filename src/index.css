@@ -1172,7 +1172,6 @@ body {
 
 .calculator-btn:nth-child(16) { grid-column: 1 / 3; grid-row: 5; } /* 0 */
 .calculator-btn:nth-child(17) { grid-column: 3; grid-row: 5; } /* . */
-}
 
 .calculator-actions {
   display: flex;
