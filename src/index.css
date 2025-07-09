@@ -168,7 +168,6 @@ body {
 
 .text-error {
   color: var(--color-error);
-  text-align: right;
 }
 
 /* Layout Grid System */
