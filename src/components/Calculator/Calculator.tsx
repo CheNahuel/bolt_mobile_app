@@ -336,18 +336,35 @@ const Calculator: React.FC<CalculatorProps> = ({
     if (error) return false;
     
     let valueToValidate: string;
+    let numericValue: number;
     
-    if (inputState === 'result' && lastResult !== null) {
+    // Handle ongoing calculation
+    if (inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '') {
+      const result = calculateResult();
+      if (result !== null && result >= 0.01) {
+        valueToValidate = formatNumberForDisplay(result);
+        numericValue = result;
+      } else {
+        return false;
+      }
+    } else if (inputState === 'result' && lastResult !== null) {
       valueToValidate = formatNumberForDisplay(lastResult);
+      numericValue = lastResult;
     } else if (inputState === 'number' && currentNumber !== '') {
       const num = parseFloat(currentNumber);
-      if (!isNaN(num)) {
+      if (!isNaN(num) && num >= 0.01) {
         valueToValidate = formatNumberForDisplay(num);
+        numericValue = num;
       } else {
         return false;
       }
     } else {
       return false; // No valid number to return
+    }
+    
+    // Check minimum value requirement
+    if (numericValue < 0.01) {
+      return false;
     }
     
     // Validate using the validation utility (convert comma to dot for validation)
@@ -362,20 +379,39 @@ const Calculator: React.FC<CalculatorProps> = ({
     
     let valueToReturn: string;
     
-    if (inputState === 'result' && lastResult !== null) {
+    // Handle ongoing calculation: if there's an operation in progress, calculate first
+    if (inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '') {
+      const result = calculateResult();
+      if (result !== null && result >= 0.01) {
+        valueToReturn = formatNumberForDisplay(result);
+        onResult(valueToReturn);
+        onClose();
+        return;
+      } else if (result !== null && result < 0.01) {
+        // Result is too small, don't save
+        setError('Result must be at least 0,01');
+        return;
+      } else {
+        // Calculation failed, don't save
+        return;
+      }
+    } else if (inputState === 'result' && lastResult !== null) {
       // Return the actual numeric result, formatted properly
       valueToReturn = formatNumberForDisplay(lastResult);
     } else if (inputState === 'number' && currentNumber !== '') {
       // Return current number formatted
       const num = parseFloat(currentNumber);
-      if (!isNaN(num)) {
+      if (!isNaN(num) && num >= 0.01) {
         valueToReturn = formatNumberForDisplay(num);
+      } else if (!isNaN(num) && num < 0.01) {
+        setError('Amount must be at least 0,01');
+        return;
       } else {
-        valueToReturn = '0,00';
+        return;
       }
     } else {
-      // Return formatted zero
-      valueToReturn = '0,00';
+      // No valid value to return
+      return;
     }
     
     onResult(valueToReturn);
