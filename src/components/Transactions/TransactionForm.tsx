@@ -34,10 +34,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Set the type from initialType if provided and not editing
+  // Initialize form data properly
   React.useEffect(() => {
-    if (initialType && !transaction) {
-      setFormData(prev => ({ ...prev, type: initialType }));
+    if (!transaction) {
+      // For new transactions, always start with category selection
+      setStep('category');
+      if (initialType) {
+        setFormData(prev => ({ ...prev, type: initialType }));
+      }
     }
   }, [initialType, transaction]);
 
