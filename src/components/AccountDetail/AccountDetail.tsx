@@ -81,12 +81,12 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         <div className="p-4">
           <div className="card text-center">
             <div className="text-4xl mb-2">{account.icon}</div>
-            <p className={`heading-1 ${
+            <p className={`heading-1 amount ${
               balance >= 0 ? 'text-success' : 'text-error'
             }`}>
               {formatCurrency(balance, account.currency)}
             </p>
-            <p className="text-sm text-muted mt-1 truncate">
+            <p className="text-sm text-muted mt-1 truncate number">
               {accountTransactions.length} transactions
             </p>
           </div>
@@ -100,14 +100,14 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
               className="btn btn-error btn-xl"
             >
               <Minus size={24} />
-              <span>Add Expense</span>
+              <span className="text-field">Add Expense</span>
             </button>
             <button
               onClick={handleAddIncome}
               className="btn btn-success btn-xl"
             >
               <Plus size={24} />
-              <span>Add Income</span>
+              <span className="text-field">Add Income</span>
             </button>
           </div>
         </div>

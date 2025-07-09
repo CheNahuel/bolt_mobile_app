@@ -121,6 +121,7 @@ body {
   font-weight: var(--font-semibold);
   line-height: var(--leading-tight);
   color: var(--color-text);
+  text-align: center;
 }
 
 .heading-2 {
@@ -129,6 +130,7 @@ body {
   font-weight: var(--font-semibold);
   line-height: var(--leading-tight);
   color: var(--color-text);
+  text-align: center;
 }
 
 .heading-3 {
@@ -137,6 +139,7 @@ body {
   font-weight: var(--font-semibold);
   line-height: var(--leading-tight);
   color: var(--color-text);
+  text-align: center;
 }
 
 .heading-4 {
@@ -145,24 +148,91 @@ body {
   font-weight: var(--font-semibold);
   line-height: var(--leading-tight);
   color: var(--color-text);
+  text-align: left;
 }
 
 .text-secondary {
   color: var(--color-text-secondary);
+  text-align: left;
 }
 
 .text-muted {
   color: var(--color-text-muted);
+  text-align: left;
 }
 
 .text-success {
   color: var(--color-success);
+  text-align: right;
 }
 
 .text-error {
   color: var(--color-error);
+  text-align: right;
 }
 
+/* Text alignment utilities */
+.text-left-force { text-align: left !important; }
+.text-center-force { text-align: center !important; }
+.text-right-force { text-align: right !important; }
+
+/* Body text styling */
+body, p, span, div {
+  text-align: left;
+}
+
+/* Numerical values and dates alignment */
+.amount, .currency, .date, .number {
+  text-align: right;
+}
+
+/* Text field boundaries with quotation marks */
+.text-field::before {
+  content: '"';
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+.text-field::after {
+  content: '"';
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+/* Form input text boundaries */
+.form-input {
+  position: relative;
+}
+
+.form-input:focus::before,
+.form-input:focus::after {
+  color: var(--color-primary);
+}
+
+/* Content boundaries for text areas */
+.content-boundary {
+  position: relative;
+}
+
+.content-boundary::before {
+  content: '"';
+  position: absolute;
+  left: -12px;
+  top: 0;
+  color: var(--color-text-muted);
+  font-size: 1.2em;
+  line-height: inherit;
+}
+
+.content-boundary::after {
+  content: '"';
+  position: absolute;
+  right: -12px;
+  top: 0;
+  color: var(--color-text-muted);
+  font-size: 1.2em;
+  line-height: inherit;
+}
 /* Layout Grid System */
 .grid-container {
   display: grid;

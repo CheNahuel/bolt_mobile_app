@@ -215,7 +215,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 formData.type === 'expense' ? 'bg-red-500' : 'bg-green-500'
               }`} />
               <span 
-                className="text-sm font-medium truncate" 
+                className="text-sm font-medium truncate content-boundary" 
                 title={`${formData.type === 'expense' ? 'Expense' : 'Income'} • ${formData.category}`}
               >
                 {formData.type === 'expense' ? 'Expense' : 'Income'} • {formData.category}
@@ -226,13 +226,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               onClick={() => setStep('category')}
               className="btn btn-outline btn-sm flex-shrink-0"
             >
-              Change
+              <span className="text-field">Change</span>
             </button>
           </div>
 
           <div className="form-group">
             <label className="form-label">
-              Amount
+              "Amount"
             </label>
             <input
               type="text"
@@ -262,7 +262,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                   setFormData(prev => ({ ...prev, amount: formatted }));
                 }
               }}
-              className={`form-input w-full text-lg ${errors.amount ? 'border-error' : ''}`}
+              className={`form-input w-full text-lg amount ${errors.amount ? 'border-error' : ''}`}
               placeholder="0,00"
               inputMode="decimal"
               aria-describedby={errors.amount ? 'amount-error' : undefined}
@@ -274,25 +274,25 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
           <div className="form-group">
             <label className="form-label">
-              Date
+              "Date"
             </label>
             <input
               type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="form-input w-full"
+              className="form-input w-full date"
             />
           </div>
 
           <div className="form-group">
             <label className="form-label">
-              Description (optional)
+              "Description (optional)"
             </label>
             <input
               type="text"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="form-input w-full"
+              className="form-input w-full content-boundary"
               placeholder="Add a note..."
             />
           </div>
@@ -303,13 +303,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               onClick={onCancel}
               className="btn btn-outline flex-1"
             >
-              Cancel
+              <span className="text-field">Cancel</span>
             </button>
             <button
               type="submit"
               className="btn btn-primary flex-1"
             >
-              {transaction ? 'Update Transaction' : 'Save Transaction'}
+              <span className="text-field">{transaction ? 'Update Transaction' : 'Save Transaction'}</span>
             </button>
           </div>
         </form>

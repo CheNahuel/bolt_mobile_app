@@ -47,19 +47,19 @@ const AccountCard: React.FC<AccountCardProps> = ({
         <div className="flex items-center space-x-3">
           <div className="text-2xl">{account.icon}</div>
           <div className="min-w-0 flex-1">
-            <h3 className="heading-4 truncate" title={account.name}>
+            <h3 className="heading-4 truncate content-boundary" title={account.name}>
               {account.name}
             </h3>
-            <p className="text-sm text-secondary truncate">{account.currency}</p>
+            <p className="text-sm text-secondary truncate text-field">{account.currency}</p>
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className={`text-lg font-semibold ${
+          <p className={`text-lg font-semibold amount ${
             balance >= 0 ? 'text-success' : 'text-error'
           }`}>
             {formatCurrency(balance, account.currency)}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted number">
             {accountTransactions.length} transactions
           </p>
         </div>
@@ -67,17 +67,17 @@ const AccountCard: React.FC<AccountCardProps> = ({
 
       {recentTransactions.length > 0 && (
         <div className="border-t border-gray-200 pt-3">
-          <p className="text-xs text-muted mb-2 truncate">Recent transactions</p>
+          <p className="text-xs text-muted mb-2 truncate text-field">Recent transactions</p>
           <div className="space-y-1">
             {recentTransactions.map((transaction) => (
               <div key={transaction.id} className="flex justify-between items-center text-sm space-x-2">
                 <span 
-                  className="text-secondary truncate flex-1 min-w-0" 
+                  className="text-secondary truncate flex-1 min-w-0 content-boundary" 
                   title={transaction.description || transaction.category}
                 >
                   {transaction.description || transaction.category}
                 </span>
-                <span className={`font-semibold flex-shrink-0 ${
+                <span className={`font-semibold flex-shrink-0 amount ${
                   transaction.type === 'income' ? 'text-success' : 'text-error'
                 }`}>
                   {transaction.type === 'income' ? '+' : '-'}

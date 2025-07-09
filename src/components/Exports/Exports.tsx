@@ -139,19 +139,19 @@ ${transactions
         <div className="max-w-md mx-auto space-y-6">
           {/* Summary */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Summary</h2>
+            <h2 className="text-lg font-semibold mb-4 text-field">Summary</h2>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600">Accounts</span>
-                <span className="font-medium">{accounts.length}</span>
+                <span className="text-gray-600 content-boundary">Accounts</span>
+                <span className="font-medium number">{accounts.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Transactions</span>
-                <span className="font-medium">{transactions.length}</span>
+                <span className="text-gray-600 content-boundary">Transactions</span>
+                <span className="font-medium number">{transactions.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Income</span>
-                <span className="font-medium text-green-600">
+                <span className="text-gray-600 content-boundary">Total Income</span>
+                <span className="font-medium text-green-600 amount">
                   {totalIncome.toLocaleString('de-DE', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -161,8 +161,8 @@ ${transactions
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Total Expenses</span>
-                <span className="font-medium text-red-600">
+                <span className="text-gray-600 content-boundary">Total Expenses</span>
+                <span className="font-medium text-red-600 amount">
                   {totalExpenses.toLocaleString('de-DE', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -173,10 +173,10 @@ ${transactions
               </div>
               <div className="border-t pt-3">
                 <div className="flex justify-between">
-                  <span className="font-medium">Net Balance</span>
+                  <span className="font-medium content-boundary">Net Balance</span>
                   <span className={`font-bold ${
                     totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  } amount`}>
                     {(totalIncome - totalExpenses).toLocaleString('de-DE', {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
@@ -191,7 +191,7 @@ ${transactions
 
           {/* Export Options */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Export Data</h2>
+            <h2 className="text-lg font-semibold mb-4 text-field">Export Data</h2>
             <div className="space-y-3">
               <button
                 onClick={generateCSV}
@@ -199,7 +199,7 @@ ${transactions
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
               >
                 <Download size={20} />
-                <span>Download CSV</span>
+                <span className="text-field">Download CSV</span>
               </button>
               
               <button
@@ -208,7 +208,7 @@ ${transactions
                 className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
               >
                 <FileText size={20} />
-                <span>Generate Report</span>
+                <span className="text-field">Generate Report</span>
               </button>
               
               <button
@@ -217,7 +217,7 @@ ${transactions
                 className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
               >
                 <Share size={20} />
-                <span>Share Summary</span>
+                <span className="text-field">Share Summary</span>
               </button>
             </div>
           </div>
@@ -225,7 +225,7 @@ ${transactions
           {transactions.length === 0 && (
             <div className="text-center p-8">
               <div className="text-4xl mb-2">📄</div>
-              <p className="text-gray-600">
+              <p className="text-gray-600 content-boundary">
                 No data to export. Add some transactions first.
               </p>
             </div>

@@ -116,9 +116,9 @@ const AccountsList: React.FC<AccountsListProps> = ({
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <div className="text-6xl mb-4">💳</div>
           <h2 className="heading-3 mb-2">
-            No accounts yet
+            "No accounts yet"
           </h2>
-          <p className="text-secondary mb-6">
+          <p className="text-secondary mb-6 content-boundary">
             Create your first account to start tracking your expenses and income
           </p>
           <button
@@ -126,7 +126,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
             className="btn btn-primary btn-lg"
           >
             <Plus size={20} />
-            <span>Add Account</span>
+            <span className="text-field">Add Account</span>
           </button>
         </div>
       </div>
@@ -138,11 +138,11 @@ const AccountsList: React.FC<AccountsListProps> = ({
       {/* Month Filter Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-md mx-auto">
-          <div className="relative">
+          <div className="relative month-selector-container">
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="form-select w-full text-center text-lg font-semibold appearance-none bg-white border-2 border-primary rounded-lg px-4 py-3 pr-10 cursor-pointer transition-all hover:border-primary-hover focus:ring-2 focus:ring-primary-light"
+              className="form-select w-full text-center text-lg font-semibold appearance-none bg-white border-2 border-primary rounded-lg px-4 py-3 cursor-pointer transition-all hover:border-primary-hover focus:ring-2 focus:ring-primary-light text-field"
             >
               {availableMonths.map(month => (
                 <option key={month.value} value={month.value}>
@@ -150,10 +150,6 @@ const AccountsList: React.FC<AccountsListProps> = ({
                 </option>
               ))}
             </select>
-            <ChevronDown 
-              size={20} 
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary pointer-events-none"
-            />
           </div>
         </div>
       </div>
@@ -176,7 +172,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
               className="btn btn-outline w-full p-6 border-2 border-dashed min-h-[120px] flex flex-col items-center justify-center space-y-2"
             >
               <Plus size={20} />
-              <span className="font-medium">Add New Account</span>
+              <span className="font-medium text-field">Add New Account</span>
             </button>
           </div>
         </div>
