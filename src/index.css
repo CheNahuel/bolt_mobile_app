@@ -968,13 +968,6 @@ body {
   flex-direction: column;
 }
 
-/* Alternative positioning for input-triggered calculator */
-.calculator-popup.positioned {
-  position: fixed;
-  margin: 0;
-  max-height: 400px;
-}
-
 /* Responsive adjustments for smaller screens */
 @media (max-width: 480px) {
   .calculator-overlay {

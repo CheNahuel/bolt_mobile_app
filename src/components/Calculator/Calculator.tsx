@@ -6,21 +6,18 @@ interface CalculatorProps {
   onClose: () => void;
   onResult: (value: string) => void;
   initialValue?: string;
-  position?: { top: number; left: number };
 }
 
 const Calculator: React.FC<CalculatorProps> = ({
   isOpen,
   onClose,
   onResult,
-  initialValue = '',
-  position
+  initialValue = ''
 }) => {
   const [display, setDisplay] = useState(initialValue || '0');
   const [previousValue, setPreviousValue] = useState<string | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
-  const calculatorRef = useRef<HTMLDivElement>(null);
 
   // Reset calculator when opened with new initial value
   useEffect(() => {
@@ -59,31 +56,6 @@ const Calculator: React.FC<CalculatorProps> = ({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, display, previousValue, operation, waitingForOperand]);
-
-  // Handle clicks outside calculator
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (calculatorRef.current && !calculatorRef.current.contains(e.target as Node)) {
-        // If there's a valid result, use it; otherwise close without result
-        if (display !== '0' && display !== 'Error' && !isNaN(parseFloat(display))) {
-          onResult(display);
-        }
-        onClose();
-      }
-    };
-
-    // Add a small delay to prevent immediate closing when opening
-    const timer = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen, display, onClose, onResult]);
 
   const inputNumber = (num: string) => {
     if (waitingForOperand) {
@@ -207,24 +179,9 @@ const Calculator: React.FC<CalculatorProps> = ({
 
   if (!isOpen) return null;
 
-  // Determine if calculator should be positioned relative to input or centered
-  const isPositioned = position !== undefined;
-  
-  const calculatorStyle: React.CSSProperties = isPositioned ? {
-    position: 'fixed',
-    top: position.top,
-    left: position.left,
-    zIndex: 1000,
-    margin: 0,
-  } : {};
-
   return (
     <div className="calculator-overlay">
-      <div 
-        ref={calculatorRef}
-        className={`calculator-popup ${isPositioned ? 'positioned' : ''}`}
-        style={calculatorStyle}
-      >
+      <div className="calculator-popup">
         {/* Header */}
         <div className="calculator-header">
           <h3 className="calculator-title">Calculator</h3>

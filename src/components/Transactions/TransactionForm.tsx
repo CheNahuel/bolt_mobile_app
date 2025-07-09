@@ -36,7 +36,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCalculator, setShowCalculator] = useState(false);
-  const [calculatorPosition, setCalculatorPosition] = useState<{ top: number; left: number } | undefined>();
 
   // Initialize form data and step properly
   React.useEffect(() => {
@@ -97,23 +96,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     onSave(transactionData);
   };
 
-  const handleAmountFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const rect = e.target.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const calculatorHeight = 400; // Approximate calculator height
-    
-    // Position calculator above input if there's not enough space below
-    const spaceBelow = viewportHeight - rect.bottom;
-    const shouldPositionAbove = spaceBelow < calculatorHeight + 20;
-    
-    setCalculatorPosition({
-      top: shouldPositionAbove ? rect.top - calculatorHeight - 10 : rect.bottom + 10,
-      left: Math.max(16, Math.min(rect.left, window.innerWidth - 336)) // 336 = calculator width + padding
-    });
-    
-    setShowCalculator(true);
-  };
-
   const handleCalculatorResult = (result: string) => {
     setFormData(prev => ({ ...prev, amount: result }));
     
@@ -125,7 +107,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const handleCalculatorClose = () => {
     setShowCalculator(false);
-    setCalculatorPosition(undefined);
   };
 
   const availableCategories = categories.filter(c => c.type === formData.type);
@@ -253,7 +234,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             <input
               type="text"
               value={formData.amount}
-              onFocus={handleAmountFocus}
+              onFocus={() => setShowCalculator(true)}
               onChange={(e) => {
                 const value = e.target.value;
                 
@@ -338,7 +319,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         onClose={handleCalculatorClose}
         onResult={handleCalculatorResult}
         initialValue={formData.amount}
-        position={calculatorPosition}
       />
     </div>
   );
