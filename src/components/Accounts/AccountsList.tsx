@@ -41,22 +41,23 @@ const AccountsList: React.FC<AccountsListProps> = ({
     <div className="flex-1 pb-24">
       <div className="container py-4">
         <div className="space-y-4 max-w-md mx-auto">
-        {accounts.map((account) => (
-          <AccountCard
-            key={account.id}
-            account={account}
-            transactions={transactions}
-            onClick={() => onAccountSelect(account.id)}
-          />
-        ))}
-        
-        <button
-          onClick={onAddAccount}
-          className="btn btn-outline w-full p-6 border-2 border-dashed min-h-[120px] flex flex-col items-center justify-center space-y-2"
-        >
-          <Plus size={20} />
-          <span className="font-medium">Add New Account</span>
-        </button>
+          {accounts.map((account) => (
+            <AccountCard
+              key={account.id}
+              account={account}
+              transactions={transactions}
+              onClick={() => onAccountSelect(account.id)}
+            />
+          ))}
+          
+          <button
+            onClick={onAddAccount}
+            className="btn btn-outline w-full p-6 border-2 border-dashed min-h-[120px] flex flex-col items-center justify-center space-y-2"
+          >
+            <Plus size={20} />
+            <span className="font-medium">Add New Account</span>
+          </button>
+        </div>
       </div>
     </div>
   );
