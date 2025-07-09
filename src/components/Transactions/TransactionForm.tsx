@@ -28,7 +28,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   
   const [formData, setFormData] = useState({
     type: transaction?.type || initialType || 'expense' as 'expense' | 'income',
-    amount: transaction?.amount.toString() || '',
+    amount: transaction ? formatAmountInput(transaction.amount.toString()) : '',
     category: transaction?.category || '',
     description: transaction?.description || '',
     date: transaction ? formatDateInput(transaction.date) : formatDateInput(new Date()),
