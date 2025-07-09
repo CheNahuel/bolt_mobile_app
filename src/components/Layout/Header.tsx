@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <header className="header">
       <div className="flex items-center justify-between max-w-md mx-auto">
-        <div className="flex items-center">
+        <div className="flex items-center flex-1 min-w-0">
           {showBack && (
             <button
               onClick={onBack}

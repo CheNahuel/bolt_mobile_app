@@ -34,8 +34,8 @@ const AccountCard: React.FC<AccountCardProps> = ({
       aria-label={`View ${account.name} account details`}
     >
       {/* Account Header */}
-      <div className="flex items-center justify-between space-x-3 mb-4">
-        <div className="flex items-center space-x-3">
+      <div className="flex items-center justify-between space-x-4 mb-4">
+        <div className="flex items-center space-x-3 min-w-0 flex-1">
           <div className="text-2xl">{account.icon}</div>
           <div className="min-w-0 flex-1">
             <h3 className="heading-4 truncate" title={account.name}>
