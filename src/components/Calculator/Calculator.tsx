@@ -231,9 +231,10 @@ const Calculator: React.FC<CalculatorProps> = ({
         setHasDecimal(false);
       }
     } else if (inputState === 'operator') {
-      // Changing operators - keep displaying the new operator
+      // Allow changing operators - this is the key fix for the user's request
       setOperation(newOp);
-      // Display remains the same, just update the operation
+      // Keep the same display and state, just update the operation
+      // This allows users to correct operator mistakes like 9 + → 9 -
     } else if (inputState === 'result') {
       // Use result as first operand for new calculation
       const resultValue = lastResult !== null ? lastResult.toString() : parseDisplayNumber(display).toString();
@@ -419,7 +420,7 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   const isOperatorAllowed = () => {
-    return !error && ((inputState === 'number' && currentNumber !== '') || inputState === 'result');
+    return !error && ((inputState === 'number' && currentNumber !== '') || inputState === 'result' || inputState === 'operator');
   };
 
   const isEqualsAllowed = () => {
