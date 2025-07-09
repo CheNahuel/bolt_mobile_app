@@ -393,7 +393,7 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   const isOperatorAllowed = () => {
-    return !error && ((inputState === 'number' && currentNumber !== '') || inputState === 'result' || inputState === 'operator');
+    return !error && ((inputState === 'number' && currentNumber !== '') || inputState === 'result');
   };
 
   const isEqualsAllowed = () => {
