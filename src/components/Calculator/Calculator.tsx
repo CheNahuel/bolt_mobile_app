@@ -16,7 +16,7 @@ const Calculator: React.FC<CalculatorProps> = ({
   onResult,
   initialValue = ''
 }) => {
-  const [display, setDisplay] = useState('0.0');
+  const [display, setDisplay] = useState('0,0');
   const [currentNumber, setCurrentNumber] = useState('');
   const [previousNumber, setPreviousNumber] = useState('');
   const [operation, setOperation] = useState<string | null>(null);
@@ -29,15 +29,16 @@ const Calculator: React.FC<CalculatorProps> = ({
   // Reset calculator when opened
   useEffect(() => {
     if (isOpen) {
-      if (initialValue && initialValue !== '0' && initialValue !== '0.00') {
-        // Parse initial value and set as current number
-        const parsed = parseFloat(initialValue.replace(',', '.'));
+      if (initialValue && initialValue !== '0' && initialValue !== '0,00') {
+        // Parse initial value (handle both comma and dot)
+        const normalizedValue = initialValue.replace(',', '.');
+        const parsed = parseFloat(normalizedValue);
         if (!isNaN(parsed)) {
-          const numberStr = parsed.toString();
-          setCurrentNumber(numberStr);
+          const numberStr = formatNumberForDisplay(parsed);
+          setCurrentNumber(parsed.toString());
           setDisplay(numberStr);
           setInputState('number');
-          setHasDecimal(numberStr.includes('.'));
+          setHasDecimal(numberStr.includes(','));
           setLastResult(parsed);
         } else {
           resetCalculator();
@@ -49,7 +50,7 @@ const Calculator: React.FC<CalculatorProps> = ({
   }, [isOpen, initialValue]);
 
   const resetCalculator = () => {
-    setDisplay('0.0');
+    setDisplay('0,0');
     setCurrentNumber('');
     setPreviousNumber('');
     setOperation(null);
@@ -57,6 +58,35 @@ const Calculator: React.FC<CalculatorProps> = ({
     setHasDecimal(false);
     setLastResult(null);
     setError('');
+  };
+
+  // Format number for display (use comma as decimal separator, max 2 decimals)
+  const formatNumberForDisplay = (num: number): string => {
+    // Limit to 2 decimal places
+    const rounded = Math.round((num + Number.EPSILON) * 100) / 100;
+    
+    // Convert to string and replace dot with comma
+    let result = rounded.toString().replace('.', ',');
+    
+    // Ensure we don't exceed 2 decimal places
+    const commaIndex = result.indexOf(',');
+    if (commaIndex !== -1 && result.length - commaIndex - 1 > 2) {
+      result = result.substring(0, commaIndex + 3);
+    }
+    
+    return result;
+  };
+
+  // Parse display string to number (handle comma as decimal separator)
+  const parseDisplayNumber = (displayStr: string): number => {
+    return parseFloat(displayStr.replace(',', '.'));
+  };
+
+  // Validate decimal places in current input
+  const validateDecimalPlaces = (numberStr: string): boolean => {
+    const commaIndex = numberStr.indexOf(',');
+    if (commaIndex === -1) return true;
+    return numberStr.length - commaIndex - 1 <= 2;
   };
 
   // Handle keyboard events
@@ -68,7 +98,7 @@ const Calculator: React.FC<CalculatorProps> = ({
       
       if (e.key >= '0' && e.key <= '9') {
         inputNumber(e.key);
-      } else if (e.key === '.') {
+      } else if (e.key === ',' || e.key === '.') {
         inputDecimal();
       } else if (e.key === '+') {
         performOperation('+');
@@ -102,9 +132,16 @@ const Calculator: React.FC<CalculatorProps> = ({
       setHasDecimal(false);
     } else if (inputState === 'number') {
       // Continue building current number
+      const newDisplay = display + num;
+      
+      // Check if adding this number would exceed decimal places
+      if (!validateDecimalPlaces(newDisplay)) {
+        return; // Don't add if it would exceed 2 decimal places
+      }
+      
       const newNumber = currentNumber + num;
       setCurrentNumber(newNumber);
-      setDisplay(newNumber);
+      setDisplay(newDisplay);
     } else if (inputState === 'operator') {
       // Start new number after operator
       setCurrentNumber(num);
@@ -129,25 +166,26 @@ const Calculator: React.FC<CalculatorProps> = ({
     if (inputState === 'initial') {
       // First input is decimal point
       setCurrentNumber('0.');
-      setDisplay('0.');
+      setDisplay('0,');
       setInputState('number');
       setHasDecimal(true);
     } else if (inputState === 'number' && !hasDecimal) {
       // Add decimal to current number
       const newNumber = currentNumber === '' ? '0.' : currentNumber + '.';
+      const newDisplay = display === '' ? '0,' : display + ',';
       setCurrentNumber(newNumber);
-      setDisplay(newNumber);
+      setDisplay(newDisplay);
       setHasDecimal(true);
     } else if (inputState === 'operator') {
       // Start new decimal number after operator
       setCurrentNumber('0.');
-      setDisplay('0.');
+      setDisplay('0,');
       setInputState('number');
       setHasDecimal(true);
     } else if (inputState === 'result') {
       // Start fresh decimal after result - clear previous result
       setCurrentNumber('0.');
-      setDisplay('0.');
+      setDisplay('0,');
       setInputState('number');
       setPreviousNumber('');
       setOperation(null);
@@ -164,12 +202,14 @@ const Calculator: React.FC<CalculatorProps> = ({
         // Chain operations - calculate current result first
         const result = calculateResult();
         if (result !== null) {
-          setPreviousNumber(result.toString());
+          const resultStr = result.toString();
+          const displayStr = formatNumberForDisplay(result);
+          setPreviousNumber(resultStr);
           setCurrentNumber('');
           setOperation(newOp);
           setInputState('operator');
           setHasDecimal(false);
-          setDisplay(result.toString());
+          setDisplay(displayStr);
           setLastResult(result);
         }
       } else {
@@ -186,7 +226,7 @@ const Calculator: React.FC<CalculatorProps> = ({
       // Display remains the same, just update the operation
     } else if (inputState === 'result') {
       // Use result as first operand for new calculation
-      const resultValue = lastResult !== null ? lastResult.toString() : display.replace(',', '.');
+      const resultValue = lastResult !== null ? lastResult.toString() : parseDisplayNumber(display).toString();
       setPreviousNumber(resultValue);
       setCurrentNumber('');
       setOperation(newOp);
@@ -199,14 +239,14 @@ const Calculator: React.FC<CalculatorProps> = ({
     if (inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '') {
       const result = calculateResult();
       if (result !== null) {
-        // Format final result with comma separator and appropriate decimal places
-        const formattedResult = formatFinalResult(result);
+        // Format result with comma separator and max 2 decimal places
+        const formattedResult = formatNumberForDisplay(result);
         setDisplay(formattedResult);
         setCurrentNumber(result.toString());
         setPreviousNumber('');
         setOperation(null);
         setInputState('result');
-        setHasDecimal(true);
+        setHasDecimal(formattedResult.includes(','));
         setLastResult(result);
       }
     }
@@ -245,49 +285,21 @@ const Calculator: React.FC<CalculatorProps> = ({
         return null;
     }
 
-    // Handle decimal precision properly
-    // Round to 10 decimal places to avoid floating point issues, then remove trailing zeros
-    result = Math.round((result + Number.EPSILON) * 10000000000) / 10000000000;
+    // Handle decimal precision properly and limit to 2 decimal places
+    result = Math.round((result + Number.EPSILON) * 100) / 100;
 
     if (!isFinite(result)) {
       setError('Result is too large');
       return null;
     }
 
-    // Check for overflow
-    if (Math.abs(result) > 999999999.99) {
+    // Check for overflow (max 999999.99)
+    if (Math.abs(result) > 999999.99) {
       setError('Result exceeds maximum value');
       return null;
     }
 
     return result;
-  };
-
-  const formatFinalResult = (result: number): string => {
-    // Determine appropriate decimal places
-    let decimalPlaces = 2;
-    
-    // If result is a whole number, show no decimals
-    if (result === Math.floor(result)) {
-      decimalPlaces = 0;
-    } else {
-      // For decimals, show only necessary decimal places (up to 10)
-      const resultStr = result.toString();
-      const decimalIndex = resultStr.indexOf('.');
-      if (decimalIndex !== -1) {
-        const actualDecimals = resultStr.length - decimalIndex - 1;
-        decimalPlaces = Math.min(actualDecimals, 10);
-      }
-    }
-    
-    // Format with appropriate decimal places
-    const formatted = result.toLocaleString('en-US', {
-      minimumFractionDigits: decimalPlaces,
-      maximumFractionDigits: decimalPlaces
-    });
-    
-    // Replace decimal point with comma for European formatting
-    return formatted.replace('.', ',');
   };
 
   const clearAll = () => {
@@ -309,18 +321,18 @@ const Calculator: React.FC<CalculatorProps> = ({
     
     if (inputState === 'result' && lastResult !== null) {
       // Return the actual numeric result, formatted properly
-      valueToReturn = formatFinalResult(lastResult);
+      valueToReturn = formatNumberForDisplay(lastResult);
     } else if (inputState === 'number' && currentNumber !== '') {
-      // Return current number formatted as final result
+      // Return current number formatted
       const num = parseFloat(currentNumber);
       if (!isNaN(num)) {
-        valueToReturn = formatFinalResult(num);
+        valueToReturn = formatNumberForDisplay(num);
       } else {
-        valueToReturn = formatFinalResult(0);
+        valueToReturn = '0,00';
       }
     } else {
       // Return formatted zero
-      valueToReturn = formatFinalResult(0);
+      valueToReturn = '0,00';
     }
     
     onResult(valueToReturn);
@@ -389,7 +401,7 @@ const Calculator: React.FC<CalculatorProps> = ({
           </div>
           {operation && previousNumber && inputState === 'operator' && (
             <div className="calculator-operation">
-              {previousNumber} {operation}
+              {formatNumberForDisplay(parseFloat(previousNumber))} {operation}
             </div>
           )}
           {error && (
@@ -533,7 +545,7 @@ const Calculator: React.FC<CalculatorProps> = ({
             disabled={!isDecimalAllowed()}
             title="Decimal point"
           >
-            .
+            ,
           </button>
         </div>
 
