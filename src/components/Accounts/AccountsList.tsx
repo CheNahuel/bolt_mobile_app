@@ -18,17 +18,17 @@ const AccountsList: React.FC<AccountsListProps> = ({
 }) => {
   if (accounts.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
         <div className="text-6xl mb-4">💳</div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="heading-3 mb-2">
           No accounts yet
         </h2>
-        <p className="text-gray-600 text-center mb-6">
+        <p className="text-secondary mb-6">
           Create your first account to start tracking your expenses and income
         </p>
         <button
           onClick={onAddAccount}
-          className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          className="btn btn-primary btn-lg"
         >
           <Plus size={20} />
           <span>Add Account</span>
@@ -38,8 +38,8 @@ const AccountsList: React.FC<AccountsListProps> = ({
   }
 
   return (
-    <div className="flex-1 p-4 pb-20">
-      <div className="max-w-md mx-auto space-y-4">
+    <div className="flex-1 p-4 pb-24">
+      <div className="grid-container">
         {accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -51,7 +51,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
         
         <button
           onClick={onAddAccount}
-          className="w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-gray-600 hover:bg-gray-100 hover:border-gray-400 transition-colors flex items-center justify-center space-x-2"
+          className="btn btn-outline w-full p-6 border-2 border-dashed"
         >
           <Plus size={20} />
           <span className="font-medium">Add New Account</span>

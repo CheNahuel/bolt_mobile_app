@@ -32,39 +32,48 @@ const AccountCard: React.FC<AccountCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+      className="card card-interactive"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      aria-label={`View ${account.name} account details`}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className="text-2xl">{account.icon}</div>
           <div>
-            <h3 className="font-semibold text-gray-900">{account.name}</h3>
-            <p className="text-sm text-gray-500">{account.currency}</p>
+            <h3 className="heading-4">{account.name}</h3>
+            <p className="text-sm text-secondary">{account.currency}</p>
           </div>
         </div>
         <div className="text-right">
-          <p className={`text-lg font-bold ${
-            balance >= 0 ? 'text-green-600' : 'text-red-600'
+          <p className={`text-lg font-semibold ${
+            balance >= 0 ? 'text-success' : 'text-error'
           }`}>
             {formatCurrency(balance, account.currency)}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted">
             {accountTransactions.length} transactions
           </p>
         </div>
       </div>
 
       {recentTransactions.length > 0 && (
-        <div className="border-t border-gray-100 pt-3">
-          <p className="text-xs text-gray-500 mb-2">Recent transactions</p>
+        <div className="border-t border-gray-200 pt-3">
+          <p className="text-xs text-muted mb-2">Recent transactions</p>
           <div className="space-y-1">
             {recentTransactions.map((transaction) => (
               <div key={transaction.id} className="flex justify-between text-sm">
-                <span className="text-gray-600 truncate">
+                <span className="text-secondary truncate">
                   {transaction.description || transaction.category}
                 </span>
-                <span className={`font-medium ${
-                  transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                <span className={`font-semibold ${
+                  transaction.type === 'income' ? 'text-success' : 'text-error'
                 }`}>
                   {transaction.type === 'income' ? '+' : '-'}
                   {formatCurrency(transaction.amount, account.currency)}

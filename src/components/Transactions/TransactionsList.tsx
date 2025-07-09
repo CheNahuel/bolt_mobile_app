@@ -21,12 +21,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
 
   if (transactions.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
         <div className="text-6xl mb-4">📊</div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <h3 className="heading-3 mb-2">
           No transactions yet
         </h3>
-        <p className="text-gray-600 text-center">
+        <p className="text-secondary">
           Start by adding your first expense or income
         </p>
       </div>
@@ -39,13 +39,22 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   };
 
   return (
-    <div className="flex-1 p-4 pb-20">
+    <div className="flex-1 p-4 pb-24">
       <div className="max-w-md mx-auto space-y-3">
         {sortedTransactions.map((transaction) => (
           <div
             key={transaction.id}
             onClick={() => onTransactionEdit(transaction)}
-            className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+            className="card card-interactive"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onTransactionEdit(transaction);
+              }
+            }}
+            aria-label={`Edit ${transaction.description || transaction.category} transaction`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -53,22 +62,22 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   {getCategoryIcon(transaction.category, transaction.type)}
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">
+                  <h4 className="font-medium">
                     {transaction.description || transaction.category}
                   </h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted">
                     {formatDate(transaction.date)}
                   </p>
                 </div>
               </div>
               <div className="text-right">
                 <p className={`font-semibold ${
-                  transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
+                  transaction.type === 'income' ? 'text-success' : 'text-error'
                 }`}>
                   {transaction.type === 'income' ? '+' : '-'}
                   {formatCurrency(transaction.amount, currency)}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted">
                   {transaction.category}
                 </p>
               </div>

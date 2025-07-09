@@ -63,14 +63,14 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
 
   if (transactions.length === 0) {
     return (
-      <div className="flex flex-col h-full bg-gray-50">
+      <div className="flex flex-col h-full">
         <Header title="Charts" />
-        <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <div className="text-6xl mb-4">📊</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="heading-3 mb-2">
             No data to display
           </h2>
-          <p className="text-gray-600 text-center">
+          <p className="text-secondary">
             Add some transactions to see your spending patterns and trends
           </p>
         </div>
@@ -79,22 +79,22 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full">
       <Header title="Charts" />
       
-      <div className="flex-1 p-4 pb-20 overflow-y-auto">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="flex-1 p-4 pb-24 overflow-y-auto">
+        <div className="grid-container">
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="text-sm text-gray-600 mb-1">Total Income</h3>
-              <p className="text-xl font-bold text-green-600">
+            <div className="card">
+              <h3 className="text-sm text-secondary mb-1">Total Income</h3>
+              <p className="text-xl font-bold text-success">
                 ${totalIncome.toLocaleString()}
               </p>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="text-sm text-gray-600 mb-1">Total Expenses</h3>
-              <p className="text-xl font-bold text-red-600">
+            <div className="card">
+              <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
+              <p className="text-xl font-bold text-error">
                 ${totalExpenses.toLocaleString()}
               </p>
             </div>
@@ -102,8 +102,8 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
 
           {/* Expense Breakdown */}
           {expenseData.length > 0 && (
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Expense Breakdown</h3>
+            <div className="card">
+              <h3 className="heading-4 mb-4">Expense Breakdown</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -133,7 +133,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm text-gray-600 truncate">
+                    <span className="text-sm text-secondary truncate">
                       {item.icon} {item.name}
                     </span>
                   </div>
@@ -144,8 +144,8 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
 
           {/* Monthly Trends */}
           {monthlyTrends.length > 1 && (
-            <div className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="text-lg font-semibold mb-4">Monthly Trends</h3>
+            <div className="card">
+              <h3 className="heading-4 mb-4">Monthly Trends</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyTrends}>
