@@ -41,6 +41,11 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     return category?.icon || (type === 'expense' ? '💸' : '💰');
   };
 
+  const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 3) + '...';
+  };
+
   const handleDeleteClick = (e: React.MouseEvent, transactionId: string) => {
     e.stopPropagation(); // Prevent triggering the edit action
     if (window.confirm('Are you sure you want to delete this transaction?')) {
@@ -48,38 +53,41 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     }
   };
   return (
-    <div className="flex-1 p-4 pb-24">
+    <div className="flex-1 pb-24">
+      <div className="container py-4">
       <div className="max-w-md mx-auto space-y-3">
         {sortedTransactions.map((transaction) => (
           <div
             key={transaction.id}
-            onClick={() => onTransactionEdit(transaction)}
-            className="card card-interactive"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onTransactionEdit(transaction);
-              }
-            }}
-            aria-label={`Edit ${transaction.description || transaction.category} transaction`}
+            className="card"
           >
-            <div className="flex items-center justify-between">
+            <div 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => onTransactionEdit(transaction)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onTransactionEdit(transaction);
+                }
+              }}
+              aria-label={`Edit ${transaction.description || transaction.category} transaction`}
+            >
               <div className="flex items-center space-x-3">
                 <div className="text-2xl">
                   {getCategoryIcon(transaction.category, transaction.type)}
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <h4 className="font-medium">
-                    {transaction.description || transaction.category}
+                    {truncateText(transaction.description || transaction.category, 25)}
                   </h4>
                   <p className="text-sm text-muted">
                     {formatDate(transaction.date)}
                   </p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right flex-shrink-0 ml-3">
                 <p className={`font-semibold ${
                   transaction.type === 'income' ? 'text-success' : 'text-error'
                 }`}>
@@ -87,12 +95,22 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   {formatCurrency(transaction.amount, currency)}
                 </p>
                 <p className="text-xs text-muted">
-                  {transaction.category}
+                  {truncateText(transaction.category, 15)}
                 </p>
               </div>
             </div>
+            <button
+              onClick={(e) => handleDeleteClick(e, transaction.id)}
+              className="btn btn-ghost btn-sm text-error hover:bg-red-50 mt-2 w-full"
+              aria-label={`Delete ${transaction.description || transaction.category} transaction`}
+            >
+              <Trash2 size={16} />
+              <span>Delete Transaction</span>
+            </button>
+            </div>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

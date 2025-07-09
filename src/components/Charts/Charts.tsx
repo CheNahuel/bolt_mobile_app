@@ -82,8 +82,9 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
     <div className="flex flex-col h-full">
       <Header title="Charts" />
       
-      <div className="flex-1 p-4 pb-24 overflow-y-auto">
-        <div className="grid-container">
+      <div className="flex-1 pb-24 overflow-y-auto">
+        <div className="container">
+          <div className="space-y-6 py-4">
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-4">
             <div className="card">
@@ -151,7 +152,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm text-secondary truncate">
+                    <span className="text-sm text-secondary truncate flex-1">
                       {item.icon} {item.name}
                     </span>
                   </div>
@@ -202,6 +203,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

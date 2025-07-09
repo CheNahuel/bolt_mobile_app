@@ -38,8 +38,9 @@ const AccountsList: React.FC<AccountsListProps> = ({
   }
 
   return (
-    <div className="flex-1 p-4 pb-24">
-      <div className="grid-container">
+    <div className="flex-1 pb-24">
+      <div className="container">
+        <div className="grid grid-cols-1 gap-4 py-4">
         {accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -51,11 +52,12 @@ const AccountsList: React.FC<AccountsListProps> = ({
         
         <button
           onClick={onAddAccount}
-          className="btn btn-outline w-full p-6 border-2 border-dashed"
+          className="btn btn-outline w-full p-6 border-2 border-dashed min-h-[120px]"
         >
           <Plus size={20} />
           <span className="font-medium">Add New Account</span>
         </button>
+        </div>
       </div>
     </div>
   );

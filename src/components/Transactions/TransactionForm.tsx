@@ -214,16 +214,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <div className={`w-3 h-3 rounded-full ${
                 formData.type === 'expense' ? 'bg-red-500' : 'bg-green-500'
               }`} />
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium truncate">
                 {formData.type === 'expense' ? 'Expense' : 'Income'} • {formData.category}
               </span>
             </div>
             <button
               type="button"
               onClick={() => setStep('category')}
-              className="text-blue-600 text-sm hover:text-blue-700 font-medium"
+              className="btn btn-outline btn-sm flex-shrink-0 ml-2"
             >
-              Change Category
+              Change
             </button>
           </div>
 

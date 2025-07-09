@@ -134,7 +134,8 @@ ${transactions
     <div className="flex flex-col h-full bg-gray-50">
       <Header title="Exports" />
       
-      <div className="flex-1 p-4 pb-20">
+      <div className="flex-1 pb-20">
+        <div className="container py-4">
         <div className="max-w-md mx-auto space-y-6">
           {/* Summary */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -229,6 +230,7 @@ ${transactions
               </p>
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

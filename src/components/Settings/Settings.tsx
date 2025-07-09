@@ -20,7 +20,8 @@ const Settings: React.FC<SettingsProps> = ({ onDataClear }) => {
     <div className="flex flex-col h-full bg-gray-50">
       <Header title="Settings" />
       
-      <div className="flex-1 p-4 pb-20">
+      <div className="flex-1 pb-20">
+        <div className="container py-4">
         <div className="max-w-md mx-auto space-y-6">
           {/* App Info */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -89,6 +90,7 @@ const Settings: React.FC<SettingsProps> = ({ onDataClear }) => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

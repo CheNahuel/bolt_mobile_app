@@ -46,12 +46,12 @@ const AccountCard: React.FC<AccountCardProps> = ({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className="text-2xl">{account.icon}</div>
-          <div>
-            <h3 className="heading-4">{account.name}</h3>
+          <div className="min-w-0 flex-1">
+            <h3 className="heading-4 truncate">{account.name}</h3>
             <p className="text-sm text-secondary">{account.currency}</p>
           </div>
         </div>
-        <div className="text-right">
+        <div className="text-right flex-shrink-0 ml-3">
           <p className={`text-lg font-semibold ${
             balance >= 0 ? 'text-success' : 'text-error'
           }`}>
@@ -69,10 +69,10 @@ const AccountCard: React.FC<AccountCardProps> = ({
           <div className="space-y-1">
             {recentTransactions.map((transaction) => (
               <div key={transaction.id} className="flex justify-between text-sm">
-                <span className="text-secondary truncate">
-                  {transaction.description || transaction.category}
+                <span className="text-secondary truncate flex-1 mr-2">
+                  {truncateText(transaction.description || transaction.category, 20)}
                 </span>
-                <span className={`font-semibold ${
+                <span className={`font-semibold flex-shrink-0 ${
                   transaction.type === 'income' ? 'text-success' : 'text-error'
                 }`}>
                   {transaction.type === 'income' ? '+' : '-'}
@@ -85,6 +85,12 @@ const AccountCard: React.FC<AccountCardProps> = ({
       )}
     </div>
   );
+};
+
+// Helper function to truncate text
+const truncateText = (text: string, maxLength: number): string => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength - 3) + '...';
 };
 
 export default AccountCard;
