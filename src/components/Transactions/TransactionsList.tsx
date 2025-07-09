@@ -107,7 +107,6 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
               <Trash2 size={16} />
               <span>Delete Transaction</span>
             </button>
-            </div>
           </div>
         ))}
       </div>
