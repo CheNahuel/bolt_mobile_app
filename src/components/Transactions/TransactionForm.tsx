@@ -232,7 +232,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
           <div className="form-group">
             <label className="form-label">
-              "Amount"
+              Amount
             </label>
             <input
               type="text"
@@ -274,7 +274,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
           <div className="form-group">
             <label className="form-label">
-              "Date"
+              Date
             </label>
             <input
               type="date"
@@ -286,7 +286,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
           <div className="form-group">
             <label className="form-label">
-              "Description (optional)"
+              Description (optional)
             </label>
             <input
               type="text"
