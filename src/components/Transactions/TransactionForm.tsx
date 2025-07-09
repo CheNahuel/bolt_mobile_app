@@ -114,35 +114,37 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </button>
           </div>
 
-          {/* Type Toggle Buttons */}
-          <div className="px-6 pb-4">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => handleTypeChange('expense')}
-                className={`btn btn-xl transition-all ${
-                  formData.type === 'expense'
-                    ? 'btn-error'
-                    : 'btn-outline border-red-200 text-red-600 hover:bg-red-50'
-                }`}
-              >
-                <Minus size={24} />
-                <span>Expense</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTypeChange('income')}
-                className={`btn btn-xl transition-all ${
-                  formData.type === 'income'
-                    ? 'btn-success'
-                    : 'btn-outline border-green-200 text-green-600 hover:bg-green-50'
-                }`}
-              >
-                <Plus size={24} />
-                <span>Income</span>
-              </button>
+          {/* Type Toggle Buttons - Only show if no initial type was provided */}
+          {!initialType && (
+            <div className="px-6 pb-4">
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleTypeChange('expense')}
+                  className={`btn btn-xl transition-all ${
+                    formData.type === 'expense'
+                      ? 'btn-error'
+                      : 'btn-outline border-red-200 text-red-600 hover:bg-red-50'
+                  }`}
+                >
+                  <Minus size={24} />
+                  <span>Expense</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTypeChange('income')}
+                  className={`btn btn-xl transition-all ${
+                    formData.type === 'income'
+                      ? 'btn-success'
+                      : 'btn-outline border-green-200 text-green-600 hover:bg-green-50'
+                  }`}
+                >
+                  <Plus size={24} />
+                  <span>Income</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Category Grid */}
           <div className="category-selector-grid">
