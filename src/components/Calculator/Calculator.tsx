@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 interface CalculatorProps {
@@ -8,24 +8,46 @@ interface CalculatorProps {
   initialValue?: string;
 }
 
+interface ValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
+}
+
 const Calculator: React.FC<CalculatorProps> = ({
   isOpen,
   onClose,
   onResult,
   initialValue = ''
 }) => {
-  const [display, setDisplay] = useState(initialValue || '0');
+  const [display, setDisplay] = useState('0.00');
+  const [rawInput, setRawInput] = useState('');
   const [previousValue, setPreviousValue] = useState<string | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const calculatorRef = useRef<HTMLDivElement>(null);
 
-  // Reset calculator when opened with new initial value
+  // Constants for validation
+  const MAX_VALUE = 999999.99;
+  const MIN_VALUE = 0.01;
+  const MAX_DIGITS = 9; // Including decimal places
+
+  // Reset calculator when opened
   useEffect(() => {
     if (isOpen) {
-      setDisplay(initialValue || '0');
+      const initial = initialValue && initialValue !== '0' ? initialValue : '';
+      if (initial) {
+        const formatted = formatAmount(initial);
+        setDisplay(formatted);
+        setRawInput(initial);
+      } else {
+        setDisplay('0.00');
+        setRawInput('');
+      }
       setPreviousValue(null);
       setOperation(null);
       setWaitingForOperand(false);
+      setValidationError(null);
     }
   }, [isOpen, initialValue]);
 
@@ -42,67 +64,203 @@ const Calculator: React.FC<CalculatorProps> = ({
         inputDecimal();
       } else if (['+', '-', '*', '/'].includes(e.key)) {
         performOperation(e.key);
-      } else if (e.key === 'Enter' || e.key === '=') {
-        calculate();
+      } else if (e.key === 'Enter') {
+        handleOK();
       } else if (e.key === 'Escape') {
         handleCancel();
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        clearAll();
+        if (e.ctrlKey || e.metaKey) {
+          clearAll();
+        } else {
+          backspace();
+        }
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, display, previousValue, operation, waitingForOperand]);
+  }, [isOpen, rawInput, previousValue, operation, waitingForOperand]);
+
+  // Validate amount input
+  const validateAmount = (input: string): ValidationResult => {
+    if (!input || input.trim() === '') {
+      return { isValid: false, errorMessage: 'Amount is required' };
+    }
+
+    const trimmed = input.trim();
+    
+    // Check for valid characters only (digits and single decimal point)
+    const validCharacterPattern = /^[0-9]*\.?[0-9]*$/;
+    if (!validCharacterPattern.test(trimmed)) {
+      return { isValid: false, errorMessage: 'Invalid characters' };
+    }
+
+    // Check for multiple decimal points
+    if ((trimmed.match(/\./g) || []).length > 1) {
+      return { isValid: false, errorMessage: 'Only one decimal point allowed' };
+    }
+
+    // Check for leading zeros (except for values like 0.50)
+    if (trimmed.length > 1 && trimmed.startsWith('0') && !trimmed.startsWith('0.')) {
+      return { isValid: false, errorMessage: 'No leading zeros allowed' };
+    }
+
+    // Check maximum digits (including decimal places)
+    const digitsOnly = trimmed.replace('.', '');
+    if (digitsOnly.length > MAX_DIGITS) {
+      return { isValid: false, errorMessage: `Maximum ${MAX_DIGITS} digits allowed` };
+    }
+
+    // Check decimal places
+    const decimalPart = trimmed.split('.')[1];
+    if (decimalPart && decimalPart.length > 2) {
+      return { isValid: false, errorMessage: 'Maximum 2 decimal places allowed' };
+    }
+
+    // Convert to number for range validation
+    const numericValue = parseFloat(trimmed);
+    
+    if (isNaN(numericValue)) {
+      return { isValid: false, errorMessage: 'Invalid number format' };
+    }
+
+    if (numericValue < MIN_VALUE) {
+      return { isValid: false, errorMessage: `Minimum amount is ${MIN_VALUE.toFixed(2)}` };
+    }
+
+    if (numericValue > MAX_VALUE) {
+      return { isValid: false, errorMessage: `Maximum amount is ${MAX_VALUE.toFixed(2)}` };
+    }
+
+    return { isValid: true };
+  };
+
+  // Format amount to always show 2 decimal places
+  const formatAmount = (input: string): string => {
+    if (!input || input.trim() === '') return '0.00';
+    
+    const trimmed = input.trim();
+    const numericValue = parseFloat(trimmed);
+    
+    if (isNaN(numericValue)) return '0.00';
+    
+    return numericValue.toFixed(2);
+  };
+
+  // Get current numeric value
+  const getCurrentValue = (): number => {
+    return parseFloat(rawInput || '0');
+  };
+
+  // Check if current state is valid for submission
+  const isValidForSubmission = (): boolean => {
+    if (!rawInput || rawInput.trim() === '') return false;
+    const validation = validateAmount(rawInput);
+    return validation.isValid;
+  };
 
   const inputNumber = (num: string) => {
     if (waitingForOperand) {
-      setDisplay(num);
+      setRawInput(num);
       setWaitingForOperand(false);
     } else {
-      setDisplay(display === '0' ? num : display + num);
+      const newInput = rawInput === '' ? num : rawInput + num;
+      
+      // Check if adding this digit would exceed limits
+      const digitsOnly = newInput.replace('.', '');
+      if (digitsOnly.length > MAX_DIGITS) {
+        setValidationError(`Maximum ${MAX_DIGITS} digits allowed`);
+        return;
+      }
+      
+      setRawInput(newInput);
     }
+    
+    updateDisplay();
   };
 
   const inputDecimal = () => {
     if (waitingForOperand) {
-      setDisplay('0.');
+      setRawInput('0.');
       setWaitingForOperand(false);
-    } else if (display.indexOf('.') === -1) {
-      setDisplay(display + '.');
+    } else if (rawInput.indexOf('.') === -1) {
+      const newInput = rawInput === '' ? '0.' : rawInput + '.';
+      setRawInput(newInput);
     }
+    
+    updateDisplay();
+  };
+
+  const backspace = () => {
+    if (waitingForOperand) return;
+    
+    const newInput = rawInput.slice(0, -1);
+    setRawInput(newInput);
+    updateDisplay();
   };
 
   const clearAll = () => {
-    setDisplay('0');
+    setRawInput('');
+    setDisplay('0.00');
     setPreviousValue(null);
     setOperation(null);
     setWaitingForOperand(false);
+    setValidationError(null);
+  };
+
+  const updateDisplay = () => {
+    // Use setTimeout to ensure state updates are processed
+    setTimeout(() => {
+      const validation = validateAmount(rawInput);
+      
+      if (validation.isValid) {
+        setDisplay(formatAmount(rawInput));
+        setValidationError(null);
+      } else {
+        // Show raw input for immediate feedback, but keep validation error
+        setDisplay(rawInput || '0.00');
+        setValidationError(validation.errorMessage || null);
+      }
+    }, 0);
   };
 
   const performOperation = (nextOperation: string) => {
-    const inputValue = parseFloat(display);
+    const inputValue = getCurrentValue();
+    const validation = validateAmount(rawInput);
+    
+    if (!validation.isValid) {
+      setValidationError(validation.errorMessage || 'Invalid input');
+      return;
+    }
 
     if (previousValue === null) {
-      setPreviousValue(display);
+      setPreviousValue(rawInput);
     } else if (operation) {
-      const currentValue = previousValue || '0';
-      const newValue = calculateResult(parseFloat(currentValue), inputValue, operation);
+      const currentValue = parseFloat(previousValue || '0');
+      const result = calculateResult(currentValue, inputValue, operation);
       
-      if (newValue !== null) {
-        const resultString = String(newValue);
-        setDisplay(resultString);
+      if (result !== null) {
+        const resultString = result.toString();
         setPreviousValue(resultString);
+        setRawInput(resultString);
+        setDisplay(formatAmount(resultString));
       }
     }
 
     setWaitingForOperand(true);
     setOperation(nextOperation);
+    setValidationError(null);
   };
 
   const calculate = () => {
     const prev = parseFloat(previousValue || '0');
-    const current = parseFloat(display);
+    const current = getCurrentValue();
+    const validation = validateAmount(rawInput);
+    
+    if (!validation.isValid) {
+      setValidationError(validation.errorMessage || 'Invalid input');
+      return;
+    }
 
     if (previousValue === null || !operation) {
       return;
@@ -111,11 +269,13 @@ const Calculator: React.FC<CalculatorProps> = ({
     const result = calculateResult(prev, current, operation);
     
     if (result !== null) {
-      const resultString = String(result);
-      setDisplay(resultString);
-      setPreviousValue(resultString);
+      const resultString = result.toString();
+      setRawInput(resultString);
+      setDisplay(formatAmount(resultString));
+      setPreviousValue(null);
       setOperation(null);
-      setWaitingForOperand(true);
+      setWaitingForOperand(false);
+      setValidationError(null);
     }
   };
 
@@ -134,10 +294,7 @@ const Calculator: React.FC<CalculatorProps> = ({
         break;
       case '/':
         if (secondValue === 0) {
-          setDisplay('Error');
-          setPreviousValue(null);
-          setOperation(null);
-          setWaitingForOperand(true);
+          setValidationError('Cannot divide by zero');
           return null;
         }
         result = firstValue / secondValue;
@@ -147,14 +304,26 @@ const Calculator: React.FC<CalculatorProps> = ({
     }
 
     // Round to avoid floating point precision issues
-    result = Math.round((result + Number.EPSILON) * 100000000) / 100000000;
+    result = Math.round((result + Number.EPSILON) * 100) / 100;
 
-    // Check for overflow
-    if (!isFinite(result) || Math.abs(result) > 999999999.99) {
-      setDisplay('Error');
-      setPreviousValue(null);
-      setOperation(null);
-      setWaitingForOperand(true);
+    // Validate result
+    if (!isFinite(result)) {
+      setValidationError('Result is not a valid number');
+      return null;
+    }
+
+    if (result < 0) {
+      setValidationError('Result cannot be negative');
+      return null;
+    }
+
+    if (result > MAX_VALUE) {
+      setValidationError(`Result exceeds maximum value of ${MAX_VALUE.toFixed(2)}`);
+      return null;
+    }
+
+    if (result > 0 && result < MIN_VALUE) {
+      setValidationError(`Result is below minimum value of ${MIN_VALUE.toFixed(2)}`);
       return null;
     }
 
@@ -167,20 +336,41 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   const handleOK = () => {
-    if (display !== 'Error' && !isNaN(parseFloat(display))) {
-      onResult(display);
+    if (isValidForSubmission()) {
+      const formattedValue = formatAmount(rawInput);
+      onResult(formattedValue);
       onClose();
     }
   };
+
+  // Handle clicks outside calculator
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (calculatorRef.current && !calculatorRef.current.contains(e.target as Node)) {
+        handleCancel();
+      }
+    };
+
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <div className="calculator-overlay">
-      <div className="calculator-popup">
+      <div ref={calculatorRef} className="calculator-popup">
         {/* Header */}
         <div className="calculator-header">
-          <h3 className="calculator-title">Calculator</h3>
+          <h3 className="calculator-title">Amount Calculator</h3>
           <button
             onClick={handleCancel}
             className="calculator-close"
@@ -197,7 +387,12 @@ const Calculator: React.FC<CalculatorProps> = ({
           </div>
           {operation && previousValue && (
             <div className="calculator-operation">
-              {previousValue} {operation}
+              {formatAmount(previousValue)} {operation}
+            </div>
+          )}
+          {validationError && (
+            <div className="calculator-error">
+              {validationError}
             </div>
           )}
         </div>
@@ -283,7 +478,6 @@ const Calculator: React.FC<CalculatorProps> = ({
           <button
             onClick={calculate}
             className="calculator-btn calculator-btn-equals"
-            rowSpan={2}
             title="Calculate"
           >
             =
@@ -336,7 +530,7 @@ const Calculator: React.FC<CalculatorProps> = ({
           <button
             onClick={handleOK}
             className="btn btn-primary calculator-action-btn"
-            disabled={display === 'Error'}
+            disabled={!isValidForSubmission()}
           >
             OK
           </button>

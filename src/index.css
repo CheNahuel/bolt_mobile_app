@@ -1066,6 +1066,18 @@ body {
   text-align: right;
 }
 
+.calculator-error {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  margin-top: var(--space-2);
+  text-align: right;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .calculator-buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
