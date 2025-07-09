@@ -225,6 +225,8 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  background-color: #f1f5f9 !important;
+  color: #94a3b8 !important;
 }
 
 /* Button Variants */
