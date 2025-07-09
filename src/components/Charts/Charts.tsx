@@ -89,13 +89,23 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
             <div className="card">
               <h3 className="text-sm text-secondary mb-1">Total Income</h3>
               <p className="text-xl font-bold text-success">
-                ${totalIncome.toLocaleString()}
+                {totalIncome.toLocaleString('de-DE', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  style: 'currency',
+                  currency: 'EUR'
+                }).replace('€', '$')}
               </p>
             </div>
             <div className="card">
               <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
               <p className="text-xl font-bold text-error">
-                ${totalExpenses.toLocaleString()}
+                {totalExpenses.toLocaleString('de-DE', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  style: 'currency',
+                  currency: 'EUR'
+                }).replace('€', '$')}
               </p>
             </div>
           </div>
@@ -121,7 +131,15 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Amount']}
+                      formatter={(value: number) => [
+                        value.toLocaleString('de-DE', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                          style: 'currency',
+                          currency: 'EUR'
+                        }).replace('€', '$'),
+                        'Amount'
+                      ]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -161,7 +179,12 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip
                       formatter={(value: number, name: string) => [
-                        `$${value.toLocaleString()}`,
+                        value.toLocaleString('de-DE', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                          style: 'currency',
+                          currency: 'EUR'
+                        }).replace('€', '$'),
                         name === 'income' ? 'Income' : 'Expenses'
                       ]}
                       labelFormatter={(value) => {

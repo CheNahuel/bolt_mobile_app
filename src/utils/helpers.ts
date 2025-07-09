@@ -15,7 +15,13 @@ export function formatDateInput(date: Date): string {
 }
 
 export function parseAmount(value: string): number {
-  const cleaned = value.replace(/[^\d.-]/g, '');
+  // Handle both comma and dot as decimal separators
+  // First normalize: replace comma with dot, remove thousands separators
+  const normalized = value
+    .replace(/\./g, '') // Remove thousands separators (dots)
+    .replace(',', '.'); // Replace decimal comma with dot
+    
+  const cleaned = normalized.replace(/[^\d.-]/g, '');
   const parsed = parseFloat(cleaned);
   return isNaN(parsed) ? 0 : parsed;
 }

@@ -31,7 +31,7 @@ const Calculator: React.FC<CalculatorProps> = ({
   // Reset calculator when opened
   useEffect(() => {
     if (isOpen) {
-      if (initialValue && initialValue !== '0' && initialValue !== '0,00' && initialValue !== '') {
+      if (initialValue && initialValue !== '0' && initialValue !== '0,00' && initialValue !== '' && initialValue !== '0.00') {
         // Parse initial value (handle both comma and dot)
         const normalizedValue = initialValue.replace(',', '.');
         const parsed = parseFloat(normalizedValue);
@@ -42,7 +42,7 @@ const Calculator: React.FC<CalculatorProps> = ({
           setInputState('result');
           setHasDecimal(numberStr.includes(','));
           setLastResult(parsed);
-          setShouldReplaceDisplay(true); // Next number input should replace this value
+          setShouldReplaceDisplay(true); // CRITICAL: Next number input should replace this value
         } else {
           resetCalculator();
         }
@@ -130,13 +130,13 @@ const Calculator: React.FC<CalculatorProps> = ({
   const inputNumber = (num: string) => {
     setError(''); // Clear any errors
     
-    if (inputState === 'initial' || shouldReplaceDisplay) {
-      // First number input or replacing existing value
+    if (inputState === 'initial' || shouldReplaceDisplay || inputState === 'result') {
+      // First number input, replacing existing value, or starting fresh after result
       setCurrentNumber(num);
       setDisplay(num);
       setInputState('number');
       setHasDecimal(false);
-      setShouldReplaceDisplay(false);
+      setShouldReplaceDisplay(false); // Now we're building a number, don't replace anymore
     } else if (inputState === 'number') {
       // Continue building current number
       const newDisplay = display + num;
@@ -162,16 +162,6 @@ const Calculator: React.FC<CalculatorProps> = ({
       setDisplay(num);
       setInputState('number');
       setHasDecimal(false);
-      setShouldReplaceDisplay(false);
-    } else if (inputState === 'result') {
-      // Start fresh calculation after result - clear previous result
-      setCurrentNumber(num);
-      setDisplay(num);
-      setInputState('number');
-      setPreviousNumber('');
-      setOperation(null);
-      setHasDecimal(false);
-      setLastResult(null);
       setShouldReplaceDisplay(false);
     }
   };

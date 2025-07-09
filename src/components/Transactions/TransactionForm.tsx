@@ -238,13 +238,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               onChange={(e) => {
                 const value = e.target.value;
                 
-                // Filter input to allow only numbers and single decimal point
+                // Filter input to allow only numbers, comma, and single decimal separator
                 const filteredValue = value
-                  .replace(/[^0-9.]/g, '') // Remove all non-numeric characters except decimal point
-                  .replace(/(\..*?)\./g, '$1') // Allow only one decimal point
-                  .replace(/^(\d*\.\d{2}).*/, '$1'); // Limit to 2 decimal places
+                  .replace(/[^0-9,]/g, '') // Remove all non-numeric characters except comma
+                  .replace(/(,.*?),/g, '$1') // Allow only one comma
+                  .replace(/^(\d*,\d{2}).*/, '$1'); // Limit to 2 decimal places
                 
-                setFormData({ ...formData, amount: value });
+                setFormData({ ...formData, amount: filteredValue });
                 
                 // Clear error when user starts typing
                 if (errors.amount) {
@@ -253,7 +253,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               }}
               onBlur={(e) => {
                 // Format the input on blur if valid
-                const validation = validateAmountInput(e.target.value);
+                const validation = validateAmountInput(e.target.value.replace(',', '.'));
                 if (validation.isValid && e.target.value.trim()) {
                   const formatted = formatAmountInput(e.target.value);
                   setFormData(prev => ({ ...prev, amount: formatted }));

@@ -151,13 +151,23 @@ ${transactions
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Income</span>
                 <span className="font-medium text-green-600">
-                  ${totalIncome.toLocaleString()}
+                  {totalIncome.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    style: 'currency',
+                    currency: 'EUR'
+                  }).replace('€', '$')}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Expenses</span>
                 <span className="font-medium text-red-600">
-                  ${totalExpenses.toLocaleString()}
+                  {totalExpenses.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                    style: 'currency',
+                    currency: 'EUR'
+                  }).replace('€', '$')}
                 </span>
               </div>
               <div className="border-t pt-3">
@@ -166,7 +176,12 @@ ${transactions
                   <span className={`font-bold ${
                     totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    ${(totalIncome - totalExpenses).toLocaleString()}
+                    {(totalIncome - totalExpenses).toLocaleString('de-DE', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                      style: 'currency',
+                      currency: 'EUR'
+                    }).replace('€', '$')}
                   </span>
                 </div>
               </div>
