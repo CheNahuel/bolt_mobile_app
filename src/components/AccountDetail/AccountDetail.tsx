@@ -80,13 +80,13 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         {/* Account Balance Card */}
         <div className="p-4">
           <div className="card text-center">
-            <div className="text-4xl mb-2">{account.icon}</div>
-            <p className={`heading-1 amount ${
+            <div className="text-7xl mb-2">{account.icon}</div>
+            <p className={`heading-1 ${
               balance >= 0 ? 'text-success' : 'text-error'
             }`}>
               {formatCurrency(balance, account.currency)}
             </p>
-            <p className="text-sm text-muted mt-1 truncate number">
+            <p className="text-sm text-muted mt-1 truncate">
               {accountTransactions.length} transactions
             </p>
           </div>
