@@ -66,9 +66,19 @@ export const storage = {
         return defaultCategories;
       }
       
-      return JSON.parse(data);
+      const categories = JSON.parse(data);
+      
+      // If categories array is empty or invalid, reinitialize with defaults
+      if (!Array.isArray(categories) || categories.length === 0) {
+        storage.saveCategories(defaultCategories);
+        return defaultCategories;
+      }
+      
+      return categories;
     } catch (error) {
       console.error('Error loading categories:', error);
+      // On any error, reinitialize with defaults
+      storage.saveCategories(defaultCategories);
       return defaultCategories;
     }
   },
