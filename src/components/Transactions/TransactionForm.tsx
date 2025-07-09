@@ -221,6 +221,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               value={formData.amount}
               onChange={(e) => {
                 const value = e.target.value;
+                
+                // Filter input to allow only numbers and single decimal point
+                const filteredValue = value
+                  .replace(/[^0-9.]/g, '') // Remove all non-numeric characters except decimal point
+                  .replace(/(\..*?)\./g, '$1') // Allow only one decimal point
+                  .replace(/^(\d*\.\d{2}).*/, '$1'); // Limit to 2 decimal places
+                
                 setFormData({ ...formData, amount: value });
                 
                 // Clear error when user starts typing
