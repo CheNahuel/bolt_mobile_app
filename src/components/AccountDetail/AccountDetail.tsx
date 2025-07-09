@@ -5,7 +5,7 @@ import { formatCurrency } from '../../utils/currency';
 import Header from '../Layout/Header';
 import CategorySelector from '../Transactions/CategorySelector';
 import TransactionsList from '../Transactions/TransactionsList';
-import TransactionDetailsForm from '../Transactions/TransactionDetailsForm';
+import TransactionDetailsForm from '../Transactions/TransactionDetailsForm.tsx';
 
 interface AccountDetailProps {
   account: Account;
