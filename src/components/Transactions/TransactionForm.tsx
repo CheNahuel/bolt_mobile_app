@@ -260,10 +260,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 }
               }}
               className={`form-input w-full text-lg ${errors.amount ? 'border-error' : ''}`}
-              placeholder="0.00"
+              placeholder="0,00"
               inputMode="decimal"
               aria-describedby={errors.amount ? 'amount-error' : undefined}
-              autoFocus
             />
             {errors.amount && (
               <p id="amount-error" className="form-error">{errors.amount}</p>

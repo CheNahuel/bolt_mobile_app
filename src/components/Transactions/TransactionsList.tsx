@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 import { Transaction, Category } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/helpers';
@@ -8,6 +9,7 @@ interface TransactionsListProps {
   categories: Category[];
   currency: string;
   onTransactionEdit: (transaction: Transaction) => void;
+  onTransactionDelete: (transactionId: string) => void;
 }
 
 const TransactionsList: React.FC<TransactionsListProps> = ({
@@ -15,6 +17,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   categories,
   currency,
   onTransactionEdit,
+  onTransactionDelete,
 }) => {
   const sortedTransactions = transactions
     .sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -38,6 +41,12 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
     return category?.icon || (type === 'expense' ? '💸' : '💰');
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, transactionId: string) => {
+    e.stopPropagation(); // Prevent triggering the edit action
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      onTransactionDelete(transactionId);
+    }
+  };
   return (
     <div className="flex-1 p-4 pb-24">
       <div className="max-w-md mx-auto space-y-3">

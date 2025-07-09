@@ -119,6 +119,7 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
           categories={categories}
           currency={account.currency}
           onTransactionEdit={handleEditTransaction}
+          onTransactionDelete={onTransactionDelete}
         />
       </div>
 
