@@ -11,7 +11,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
   onViewChange,
 }) => {
   const navItems = [
-    { id: 'monthly', label: 'Monthly', icon: Calendar },
+    { id: 'accounts', label: 'Accounts', icon: CreditCard },
     { id: 'charts', label: 'Charts', icon: BarChart3 },
     { id: 'exports', label: 'Exports', icon: Download },
     { id: 'settings', label: 'Settings', icon: Settings },
