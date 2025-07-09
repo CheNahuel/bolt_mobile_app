@@ -66,7 +66,6 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
       <div className="flex flex-col h-full">
         <Header title="Charts" />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <div className="text-6xl mb-4">📊</div>
           <h2 className="heading-3 mb-2">
             No data to display
           </h2>
