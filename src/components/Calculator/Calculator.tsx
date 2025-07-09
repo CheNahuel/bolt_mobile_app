@@ -22,6 +22,8 @@ const Calculator: React.FC<CalculatorProps> = ({
   const [operation, setOperation] = useState<string | null>(null);
   const [inputState, setInputState] = useState<InputState>('initial');
   const [hasDecimal, setHasDecimal] = useState(false);
+  const [lastResult, setLastResult] = useState<number | null>(null);
+  const [error, setError] = useState<string>('');
   const calculatorRef = useRef<HTMLDivElement>(null);
 
   // Reset calculator when opened
@@ -29,13 +31,14 @@ const Calculator: React.FC<CalculatorProps> = ({
     if (isOpen) {
       if (initialValue && initialValue !== '0' && initialValue !== '0.00') {
         // Parse initial value and set as current number
-        const parsed = parseFloat(initialValue);
+        const parsed = parseFloat(initialValue.replace(',', '.'));
         if (!isNaN(parsed)) {
           const numberStr = parsed.toString();
           setCurrentNumber(numberStr);
           setDisplay(numberStr);
           setInputState('number');
           setHasDecimal(numberStr.includes('.'));
+          setLastResult(parsed);
         } else {
           resetCalculator();
         }
@@ -52,6 +55,8 @@ const Calculator: React.FC<CalculatorProps> = ({
     setOperation(null);
     setInputState('initial');
     setHasDecimal(false);
+    setLastResult(null);
+    setError('');
   };
 
   // Handle keyboard events
@@ -87,6 +92,8 @@ const Calculator: React.FC<CalculatorProps> = ({
   }, [isOpen, inputState, currentNumber, hasDecimal]);
 
   const inputNumber = (num: string) => {
+    setError(''); // Clear any errors
+    
     if (inputState === 'initial') {
       // First number input - clear initial display
       setCurrentNumber(num);
@@ -105,17 +112,20 @@ const Calculator: React.FC<CalculatorProps> = ({
       setInputState('number');
       setHasDecimal(false);
     } else if (inputState === 'result') {
-      // Start fresh calculation after result
+      // Start fresh calculation after result - clear previous result
       setCurrentNumber(num);
       setDisplay(num);
       setInputState('number');
       setPreviousNumber('');
       setOperation(null);
       setHasDecimal(false);
+      setLastResult(null);
     }
   };
 
   const inputDecimal = () => {
+    setError(''); // Clear any errors
+    
     if (inputState === 'initial') {
       // First input is decimal point
       setCurrentNumber('0.');
@@ -135,17 +145,20 @@ const Calculator: React.FC<CalculatorProps> = ({
       setInputState('number');
       setHasDecimal(true);
     } else if (inputState === 'result') {
-      // Start fresh decimal after result
+      // Start fresh decimal after result - clear previous result
       setCurrentNumber('0.');
       setDisplay('0.');
       setInputState('number');
       setPreviousNumber('');
       setOperation(null);
       setHasDecimal(true);
+      setLastResult(null);
     }
   };
 
-  const performOperation = (op: string) => {
+  const performOperation = (newOp: string) => {
+    setError(''); // Clear any errors
+    
     if (inputState === 'number' && currentNumber !== '') {
       if (operation && previousNumber !== '') {
         // Chain operations - calculate current result first
@@ -153,24 +166,30 @@ const Calculator: React.FC<CalculatorProps> = ({
         if (result !== null) {
           setPreviousNumber(result.toString());
           setCurrentNumber('');
-          setOperation(op);
+          setOperation(newOp);
           setInputState('operator');
           setHasDecimal(false);
           setDisplay(result.toString());
+          setLastResult(result);
         }
       } else {
         // First operation
         setPreviousNumber(currentNumber);
         setCurrentNumber('');
-        setOperation(op);
+        setOperation(newOp);
         setInputState('operator');
         setHasDecimal(false);
       }
+    } else if (inputState === 'operator') {
+      // Changing operators - keep displaying the new operator
+      setOperation(newOp);
+      // Display remains the same, just update the operation
     } else if (inputState === 'result') {
       // Use result as first operand for new calculation
-      setPreviousNumber(display);
+      const resultValue = lastResult !== null ? lastResult.toString() : display.replace(',', '.');
+      setPreviousNumber(resultValue);
       setCurrentNumber('');
-      setOperation(op);
+      setOperation(newOp);
       setInputState('operator');
       setHasDecimal(false);
     }
@@ -180,14 +199,15 @@ const Calculator: React.FC<CalculatorProps> = ({
     if (inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '') {
       const result = calculateResult();
       if (result !== null) {
-        // Format final result with comma separator and 2 decimal places
+        // Format final result with comma separator and appropriate decimal places
         const formattedResult = formatFinalResult(result);
         setDisplay(formattedResult);
         setCurrentNumber(result.toString());
         setPreviousNumber('');
         setOperation(null);
         setInputState('result');
-        setHasDecimal(true); // Result always has decimal
+        setHasDecimal(true);
+        setLastResult(result);
       }
     }
   };
@@ -196,7 +216,10 @@ const Calculator: React.FC<CalculatorProps> = ({
     const prev = parseFloat(previousNumber);
     const current = parseFloat(currentNumber);
     
-    if (isNaN(prev) || isNaN(current)) return null;
+    if (isNaN(prev) || isNaN(current)) {
+      setError('Invalid number format');
+      return null;
+    }
 
     let result: number;
 
@@ -212,18 +235,28 @@ const Calculator: React.FC<CalculatorProps> = ({
         break;
       case '÷':
         if (current === 0) {
-          return null; // Division by zero
+          setError('Cannot divide by zero');
+          return null;
         }
         result = prev / current;
         break;
       default:
+        setError('Invalid operation');
         return null;
     }
 
-    // Round to avoid floating point precision issues
-    result = Math.round((result + Number.EPSILON) * 100) / 100;
+    // Handle decimal precision properly
+    // Round to 10 decimal places to avoid floating point issues, then remove trailing zeros
+    result = Math.round((result + Number.EPSILON) * 10000000000) / 10000000000;
 
     if (!isFinite(result)) {
+      setError('Result is too large');
+      return null;
+    }
+
+    // Check for overflow
+    if (Math.abs(result) > 999999999.99) {
+      setError('Result exceeds maximum value');
       return null;
     }
 
@@ -231,10 +264,26 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   const formatFinalResult = (result: number): string => {
-    // Format with comma as thousand separator and 2 decimal places
+    // Determine appropriate decimal places
+    let decimalPlaces = 2;
+    
+    // If result is a whole number, show no decimals
+    if (result === Math.floor(result)) {
+      decimalPlaces = 0;
+    } else {
+      // For decimals, show only necessary decimal places (up to 10)
+      const resultStr = result.toString();
+      const decimalIndex = resultStr.indexOf('.');
+      if (decimalIndex !== -1) {
+        const actualDecimals = resultStr.length - decimalIndex - 1;
+        decimalPlaces = Math.min(actualDecimals, 10);
+      }
+    }
+    
+    // Format with appropriate decimal places
     const formatted = result.toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      minimumFractionDigits: decimalPlaces,
+      maximumFractionDigits: decimalPlaces
     });
     
     // Replace decimal point with comma for European formatting
@@ -251,15 +300,24 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   const handleOK = () => {
+    if (error) {
+      // Don't return result if there's an error
+      return;
+    }
+    
     let valueToReturn: string;
     
-    if (inputState === 'result') {
-      // Return the formatted result
-      valueToReturn = display;
+    if (inputState === 'result' && lastResult !== null) {
+      // Return the actual numeric result, formatted properly
+      valueToReturn = formatFinalResult(lastResult);
     } else if (inputState === 'number' && currentNumber !== '') {
       // Return current number formatted as final result
       const num = parseFloat(currentNumber);
-      valueToReturn = formatFinalResult(num);
+      if (!isNaN(num)) {
+        valueToReturn = formatFinalResult(num);
+      } else {
+        valueToReturn = formatFinalResult(0);
+      }
     } else {
       // Return formatted zero
       valueToReturn = formatFinalResult(0);
@@ -271,20 +329,20 @@ const Calculator: React.FC<CalculatorProps> = ({
 
   // Button state logic
   const isNumberAllowed = () => {
-    return inputState === 'initial' || inputState === 'number' || inputState === 'operator' || inputState === 'result';
+    return !error && (inputState === 'initial' || inputState === 'number' || inputState === 'operator' || inputState === 'result');
   };
 
   const isDecimalAllowed = () => {
-    return (inputState === 'initial' || inputState === 'operator' || inputState === 'result') || 
-           (inputState === 'number' && !hasDecimal);
+    return !error && ((inputState === 'initial' || inputState === 'operator' || inputState === 'result') || 
+           (inputState === 'number' && !hasDecimal));
   };
 
   const isOperatorAllowed = () => {
-    return (inputState === 'number' && currentNumber !== '') || inputState === 'result';
+    return !error && ((inputState === 'number' && currentNumber !== '') || inputState === 'result' || inputState === 'operator');
   };
 
   const isEqualsAllowed = () => {
-    return inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '';
+    return !error && inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '';
   };
 
   // Handle clicks outside calculator
@@ -332,6 +390,11 @@ const Calculator: React.FC<CalculatorProps> = ({
           {operation && previousNumber && inputState === 'operator' && (
             <div className="calculator-operation">
               {previousNumber} {operation}
+            </div>
+          )}
+          {error && (
+            <div className="calculator-error">
+              {error}
             </div>
           )}
         </div>
@@ -485,6 +548,7 @@ const Calculator: React.FC<CalculatorProps> = ({
           <button
             onClick={handleOK}
             className="btn btn-primary calculator-action-btn"
+            disabled={!!error}
           >
             OK
           </button>
