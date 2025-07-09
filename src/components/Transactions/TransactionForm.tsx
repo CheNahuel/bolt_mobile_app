@@ -7,6 +7,7 @@ interface TransactionFormProps {
   account: Account;
   categories: Category[];
   transaction?: Transaction;
+  initialType?: 'expense' | 'income' | null;
   onSave: (transaction: Transaction) => void;
   onCancel: () => void;
 }
@@ -15,15 +16,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   account,
   categories,
   transaction,
+  initialType,
   onSave,
   onCancel,
 }) => {
-  const [step, setStep] = useState<'type' | 'category' | 'details'>(
-    transaction ? 'details' : 'type'
+  const [step, setStep] = useState<'category' | 'details'>(
+    transaction ? 'details' : 'category'
   );
   
   const [formData, setFormData] = useState({
-    type: transaction?.type || 'expense' as 'expense' | 'income',
+    type: transaction?.type || initialType || 'expense' as 'expense' | 'income',
     amount: transaction?.amount.toString() || '',
     category: transaction?.category || '',
     description: transaction?.description || '',
@@ -32,10 +34,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleTypeSelect = (type: 'expense' | 'income') => {
-    setFormData({ ...formData, type });
-    setStep('category');
-  };
+  // Set the type from initialType if provided and not editing
+  React.useEffect(() => {
+    if (initialType && !transaction) {
+      setFormData(prev => ({ ...prev, type: initialType }));
+    }
+  }, [initialType, transaction]);
 
   const handleCategorySelect = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
@@ -96,45 +100,27 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           </button>
         </div>
 
-        {step === 'type' && (
-          <div className="space-y-4">
-            <h3 className="text-center text-secondary mb-6">Choose transaction type</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => handleTypeSelect('expense')}
-                className="btn btn-error btn-xl w-full"
-              >
-                <Minus size={24} />
-                <span>Add Expense</span>
-              </button>
-              <button
-                onClick={() => handleTypeSelect('income')}
-                className="btn btn-success btn-xl w-full"
-              >
-                <Plus size={24} />
-                <span>Add Income</span>
-              </button>
-            </div>
-          </div>
-        )}
-
         {step === 'category' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-secondary">Select category</h3>
-              <button
-                onClick={() => setStep('type')}
-                className="btn btn-ghost btn-sm"
-              >
-                Change type
-              </button>
+            <div className="text-center mb-6">
+              <h3 className="heading-4 mb-2">
+                Select {formData.type === 'expense' ? 'Expense' : 'Income'} Category
+              </h3>
+              <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
+                formData.type === 'expense' 
+                  ? 'bg-red-100 text-red-700' 
+                  : 'bg-green-100 text-green-700'
+              }`}>
+                {formData.type === 'expense' ? <Minus size={16} /> : <Plus size={16} />}
+                <span>{formData.type === 'expense' ? 'Expense' : 'Income'}</span>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {availableCategories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategorySelect(category.id)}
-                  className="btn btn-outline p-4 flex-col space-y-2"
+                  className="p-4 border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-colors flex flex-col items-center space-y-2 click-feedback"
                 >
                   <span className="text-2xl">{category.icon}</span>
                   <span className="text-sm font-medium">
@@ -152,7 +138,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className={`w-3 h-3 rounded-full ${
-                    formData.type === 'expense' ? 'bg-error' : 'bg-success'
+                    formData.type === 'expense' ? 'bg-red-500' : 'bg-green-500'
                   }`} />
                   <span className="text-sm text-secondary">
                     {formData.type === 'expense' ? 'Expense' : 'Income'} • {formData.category}
@@ -161,7 +147,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setStep('category')}
-                  className="btn btn-ghost btn-sm"
+                  className="text-blue-600 text-sm hover:text-blue-700"
                 >
                   Change
                 </button>

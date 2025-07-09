@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Plus, Minus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { Transaction, Category, Account } from '../../types';
 import { formatCurrency } from '../../utils/currency';
-import { formatDate } from '../../utils/helpers';
 import Header from '../Layout/Header';
 import TransactionForm from '../Transactions/TransactionForm';
 import TransactionsList from '../Transactions/TransactionsList';
@@ -26,6 +25,7 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
 }) => {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
+  const [selectedTransactionType, setSelectedTransactionType] = useState<'expense' | 'income' | null>(null);
 
   const accountTransactions = transactions.filter(t => t.accountId === account.id);
   const balance = accountTransactions.reduce((sum, transaction) => {
@@ -39,20 +39,27 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
     return sum;
   }, 0);
 
-  const handleAddTransaction = () => {
+  const handleAddExpense = () => {
     setEditingTransaction(undefined);
+    setSelectedTransactionType('expense');
+    setShowTransactionForm(true);
+  };
+
+  const handleAddIncome = () => {
+    setEditingTransaction(undefined);
+    setSelectedTransactionType('income');
     setShowTransactionForm(true);
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
     setEditingTransaction(transaction);
+    setSelectedTransactionType(transaction.type);
     setShowTransactionForm(true);
   };
 
   const handleTransactionSave = (transaction: Transaction) => {
     onTransactionSave(transaction);
-    setShowTransactionForm(false);
-    setEditingTransaction(undefined);
+    handleFormCancel();
   };
 
   const handleDeleteTransaction = (transactionId: string) => {
@@ -64,11 +71,9 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
   const handleFormCancel = () => {
     setShowTransactionForm(false);
     setEditingTransaction(undefined);
+    setSelectedTransactionType(null);
   };
 
-  const recentTransactions = accountTransactions
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
-    .slice(0, 5);
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -76,8 +81,6 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         title={account.name}
         showBack
         onBack={onBack}
-        showAdd
-        onAdd={handleAddTransaction}
       />
 
       <div className="flex-1 overflow-y-auto">
@@ -101,20 +104,14 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         <div className="px-4 pb-4">
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => {
-                setEditingTransaction(undefined);
-                setShowTransactionForm(true);
-              }}
+              onClick={handleAddExpense}
               className="btn btn-error btn-xl"
             >
               <Minus size={24} />
               <span>Add Expense</span>
             </button>
             <button
-              onClick={() => {
-                setEditingTransaction(undefined);
-                setShowTransactionForm(true);
-              }}
+              onClick={handleAddIncome}
               className="btn btn-success btn-xl"
             >
               <Plus size={24} />
@@ -138,6 +135,7 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
           account={account}
           categories={categories}
           transaction={editingTransaction}
+          initialType={selectedTransactionType}
           onSave={handleTransactionSave}
           onCancel={handleFormCancel}
         />
