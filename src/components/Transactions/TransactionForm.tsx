@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { X, Minus, Plus } from 'lucide-react';
 import { Transaction, Category, Account } from '../../types';
-import { generateId, formatDateInput, parseAmount, validateAmount } from '../../utils/helpers';
+import { generateId, formatDateInput, parseAmount } from '../../utils/helpers';
+import { validateAmountInput, formatAmountInput } from '../../utils/validation';
 
 interface TransactionFormProps {
   account: Account;
@@ -63,8 +64,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     
     const newErrors: Record<string, string> = {};
     
-    if (!validateAmount(formData.amount)) {
-      newErrors.amount = 'Please enter a valid amount';
+    const amountValidation = validateAmountInput(formData.amount);
+    if (!amountValidation.isValid) {
+      newErrors.amount = amountValidation.errorMessage || 'Please enter a valid amount';
     }
     
     if (!formData.category) {
@@ -217,7 +219,23 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             <input
               type="text"
               value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData({ ...formData, amount: value });
+                
+                // Clear error when user starts typing
+                if (errors.amount) {
+                  setErrors(prev => ({ ...prev, amount: '' }));
+                }
+              }}
+              onBlur={(e) => {
+                // Format the input on blur if valid
+                const validation = validateAmountInput(e.target.value);
+                if (validation.isValid && e.target.value.trim()) {
+                  const formatted = formatAmountInput(e.target.value);
+                  setFormData(prev => ({ ...prev, amount: formatted }));
+                }
+              }}
               className={`form-input w-full text-lg ${errors.amount ? 'border-error' : ''}`}
               placeholder="0.00"
               inputMode="decimal"

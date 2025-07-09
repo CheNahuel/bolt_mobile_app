@@ -20,10 +20,8 @@ export function parseAmount(value: string): number {
   return isNaN(parsed) ? 0 : parsed;
 }
 
-export function validateAmount(value: string): boolean {
-  const amount = parseAmount(value);
-  return amount > 0;
-}
+// Import the new validation function
+export { validateAmount, validateAmountInput, formatAmountInput } from './validation';
 
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
