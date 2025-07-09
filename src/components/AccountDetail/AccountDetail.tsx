@@ -1,240 +1,149 @@
 import React, { useState } from 'react';
-import { X, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, Edit, Trash2 } from 'lucide-react';
 import { Transaction, Category, Account } from '../../types';
-import { generateId, formatDateInput, parseAmount, validateAmount } from '../../utils/helpers';
+import { formatCurrency } from '../../utils/currency';
+import { formatDate } from '../../utils/helpers';
+import Header from '../Layout/Header';
+import TransactionForm from '../Transactions/TransactionForm';
+import TransactionsList from '../Transactions/TransactionsList';
 
-interface TransactionFormProps {
+interface AccountDetailProps {
   account: Account;
+  transactions: Transaction[];
   categories: Category[];
-  transaction?: Transaction;
-  onSave: (transaction: Transaction) => void;
-  onCancel: () => void;
+  onBack: () => void;
+  onTransactionSave: (transaction: Transaction) => void;
+  onTransactionDelete: (transactionId: string) => void;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({
+const AccountDetail: React.FC<AccountDetailProps> = ({
   account,
+  transactions,
   categories,
-  transaction,
-  onSave,
-  onCancel,
+  onBack,
+  onTransactionSave,
+  onTransactionDelete,
 }) => {
-  const [step, setStep] = useState<'type' | 'category' | 'details'>(
-    transaction ? 'details' : 'type'
-  );
-  
-  const [formData, setFormData] = useState({
-    type: transaction?.type || 'expense' as 'expense' | 'income',
-    amount: transaction?.amount.toString() || '',
-    category: transaction?.category || '',
-    description: transaction?.description || '',
-    date: transaction ? formatDateInput(transaction.date) : formatDateInput(new Date()),
-  });
+  const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const accountTransactions = transactions.filter(t => t.accountId === account.id);
+  const balance = accountTransactions.reduce((sum, transaction) => {
+    if (transaction.type === 'income') return sum + transaction.amount;
+    if (transaction.type === 'expense') return sum - transaction.amount;
+    if (transaction.type === 'transfer') {
+      return transaction.transferToAccountId === account.id
+        ? sum + transaction.amount
+        : sum - transaction.amount;
+    }
+    return sum;
+  }, 0);
 
-  const handleTypeSelect = (type: 'expense' | 'income') => {
-    setFormData({ ...formData, type });
-    setStep('category');
+  const handleAddTransaction = () => {
+    setEditingTransaction(undefined);
+    setShowTransactionForm(true);
   };
 
-  const handleCategorySelect = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    if (category) {
-      setFormData({ ...formData, category: category.name });
-      setStep('details');
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setShowTransactionForm(true);
+  };
+
+  const handleTransactionSave = (transaction: Transaction) => {
+    onTransactionSave(transaction);
+    setShowTransactionForm(false);
+    setEditingTransaction(undefined);
+  };
+
+  const handleDeleteTransaction = (transactionId: string) => {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      onTransactionDelete(transactionId);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const newErrors: Record<string, string> = {};
-    
-    if (!validateAmount(formData.amount)) {
-      newErrors.amount = 'Please enter a valid amount';
-    }
-    
-    if (!formData.category) {
-      newErrors.category = 'Please select a category';
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    const transactionData: Transaction = {
-      id: transaction?.id || generateId(),
-      accountId: account.id,
-      type: formData.type,
-      amount: parseAmount(formData.amount),
-      category: formData.category,
-      description: formData.description.trim() || undefined,
-      date: new Date(formData.date),
-      createdAt: transaction?.createdAt || new Date(),
-      synced: false,
-    };
-
-    onSave(transactionData);
+  const handleFormCancel = () => {
+    setShowTransactionForm(false);
+    setEditingTransaction(undefined);
   };
 
-  const availableCategories = categories.filter(c => c.type === formData.type);
+  const recentTransactions = accountTransactions
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .slice(0, 5);
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="heading-3">
-            {transaction ? 'Edit Transaction' : 'Add Transaction'}
-          </h2>
-          <button
-            onClick={onCancel}
-            className="btn btn-ghost btn-sm"
-            aria-label="Close dialog"
-          >
-            <X size={20} />
-          </button>
+    <div className="flex flex-col h-screen bg-gray-50">
+      <Header
+        title={account.name}
+        showBack
+        onBack={onBack}
+        showAdd
+        onAdd={handleAddTransaction}
+      />
+
+      <div className="flex-1 overflow-y-auto">
+        {/* Account Balance Card */}
+        <div className="p-4">
+          <div className="card text-center">
+            <div className="text-4xl mb-2">{account.icon}</div>
+            <h2 className="heading-3 mb-1">{account.name}</h2>
+            <p className={`heading-1 ${
+              balance >= 0 ? 'text-success' : 'text-error'
+            }`}>
+              {formatCurrency(balance, account.currency)}
+            </p>
+            <p className="text-sm text-muted mt-1">
+              {accountTransactions.length} transactions
+            </p>
+          </div>
         </div>
 
-        {step === 'type' && (
-          <div className="space-y-4">
-            <h3 className="text-center text-secondary mb-6">Choose transaction type</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => handleTypeSelect('expense')}
-                className="btn btn-error btn-xl w-full"
-              >
-                <Minus size={24} />
-                <span>Add Expense</span>
-              </button>
-              <button
-                onClick={() => handleTypeSelect('income')}
-                className="btn btn-success btn-xl w-full"
-              >
-                <Plus size={24} />
-                <span>Add Income</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step === 'category' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="heading-4">Select category</h3>
-              <button
-                onClick={() => setStep('type')}
-                className="btn btn-ghost btn-sm"
-              >
-                Change type
-          <p className={`heading-1 ${
-            balance >= 0 ? 'text-success' : 'text-error'
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {availableCategories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategorySelect(category.id)}
-                  className="p-4 border border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-colors flex flex-col items-center space-y-2"
-                >
-                  <span className="text-2xl">{category.icon}</span>
-                  <span className="text-sm font-medium text-gray-700">
-                    {category.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {step === 'details' && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!transaction && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${
-                    formData.type === 'expense' ? 'bg-red-500' : 'bg-green-500'
-                  }`} />
-                  <span className="text-sm text-gray-600">
-                    {formData.type === 'expense' ? 'Expense' : 'Income'} • {formData.category}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setStep('category')}
-                  className="text-blue-600 text-sm hover:text-blue-700"
-                >
-                  Change
-                </button>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount
-              </label>
-              <input
-                type="text"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
-                  errors.amount ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="0.00"
-                inputMode="decimal"
-              />
-              {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+        {/* Quick Actions */}
+        <div className="px-4 pb-4">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => {
+                setEditingTransaction(undefined);
+                setShowTransactionForm(true);
+              }}
               className="btn btn-error btn-xl"
-              </label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <Minus size={24} />
+              <span>Add Expense</span>
+            </button>
+            <button
+              onClick={() => {
+                setEditingTransaction(undefined);
+                setShowTransactionForm(true);
+              }}
               className="btn btn-success btn-xl"
-            </div>
+            >
+              <Plus size={24} />
+              <span>Add Income</span>
+            </button>
+          </div>
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description (optional)
-          <button className="btn btn-outline w-full">
-              <input
-                type="text"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Add a note..."
-              />
-            </div>
-
-            <div className="flex space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {transaction ? 'Update' : 'Save'}
-          <p className="text-sm text-muted mt-1">
-            </div>
-          </form>
-        )}
+        {/* Transactions List */}
+        <TransactionsList
+          transactions={accountTransactions}
+          categories={categories}
+          currency={account.currency}
+          onTransactionEdit={handleEditTransaction}
+        />
       </div>
+
+      {/* Transaction Form Modal */}
+      {showTransactionForm && (
+        <TransactionForm
+          account={account}
+          categories={categories}
+          transaction={editingTransaction}
+          onSave={handleTransactionSave}
+          onCancel={handleFormCancel}
+        />
+      )}
     </div>
   );
 };
 
-export default TransactionForm;
-      <div className="card border-b border-gray-200 rounded-none">
+export default AccountDetail;
