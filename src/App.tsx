@@ -11,14 +11,13 @@ import AccountDetail from './components/AccountDetail/AccountDetail';
 import Charts from './components/Charts/Charts';
 import Exports from './components/Exports/Exports';
 import Settings from './components/Settings/Settings';
-import MonthlyAccountsList from './components/Accounts/MonthlyAccountsList';
 
 function App() {
   const [appState, setAppState] = useState<AppState>({
     accounts: [],
     transactions: [],
     categories: [],
-    currentView: 'monthly',
+    currentView: 'accounts',
     selectedAccountId: undefined,
   });
 
@@ -52,7 +51,7 @@ function App() {
     storage.saveCategories(appState.categories);
   }, [appState.categories]);
 
-  const handleViewChange = (view: 'accounts' | 'monthly' | 'charts' | 'exports' | 'settings') => {
+  const handleViewChange = (view: 'accounts' | 'charts' | 'exports' | 'settings') => {
     setAppState(prev => ({
       ...prev,
       currentView: view,
@@ -137,14 +136,6 @@ function App() {
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        {appState.currentView === 'monthly' && (
-          <MonthlyAccountsList
-            accounts={appState.accounts}
-            transactions={appState.transactions}
-            onAccountSelect={handleAccountSelect}
-          />
-        )}
-
         {appState.currentView === 'accounts' && (
           <AccountsList
             accounts={appState.accounts}
