@@ -21,8 +21,8 @@ export function validateAmountInput(input: string): ValidationResult {
     };
   }
 
-  // Trim leading and trailing spaces
-  const trimmedInput = input.trim();
+  // Trim leading and trailing spaces and normalize decimal separator
+  const trimmedInput = input.trim().replace(',', '.');
   
   // Check if empty after trimming
   if (trimmedInput === '') {
@@ -85,7 +85,7 @@ export function validateAmountInput(input: string): ValidationResult {
   if (numericValue <= 0) {
     return {
       isValid: false,
-      errorMessage: 'Amount must be greater than 0'
+      errorMessage: 'Amount must be greater than 0,00'
     };
   }
 
@@ -94,7 +94,7 @@ export function validateAmountInput(input: string): ValidationResult {
   if (numericValue > MAX_AMOUNT) {
     return {
       isValid: false,
-      errorMessage: 'Amount cannot exceed $999,999,999.99'
+      errorMessage: 'Amount cannot exceed 999.999.999,99'
     };
   }
 
@@ -133,16 +133,14 @@ export function validateAmount(value: string): boolean {
  * Should only be called after validation passes
  */
 export function formatAmountInput(input: string): string {
-  const trimmed = input.trim();
+  const trimmed = input.trim().replace(',', '.');
   const number = parseFloat(trimmed);
   
-  // For whole numbers, don't add decimal places
-  if (number === Math.floor(number)) {
-    return number.toString();
-  }
+  // Always format with exactly 2 decimal places and comma separator
+  const formatted = number.toFixed(2);
   
-  // For decimals, ensure proper formatting
-  return number.toFixed(2).replace(/\.?0+$/, '');
+  // Replace dot with comma for display
+  return formatted.replace('.', ',');
 }
 
 /**
