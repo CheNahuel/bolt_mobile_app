@@ -130,7 +130,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <div className="text-6xl mb-4">💳</div>
           <h2 className="heading-3 mb-2">
-            "No accounts yet"
+            No accounts yet
           </h2>
           <p className="text-secondary mb-6 content-boundary">
             Create your first account to start tracking your expenses and income
