@@ -4,35 +4,25 @@ import { formatCurrency } from '../../utils/currency';
 
 interface AccountCardProps {
   account: Account;
-  transactions: Transaction[];
+  monthlyIncome: number;
+  monthlyExpenses: number;
+  monthlyBalance: number;
+  transactionCount: number;
   onClick: () => void;
 }
 
 const AccountCard: React.FC<AccountCardProps> = ({
   account,
-  transactions,
+  monthlyIncome,
+  monthlyExpenses,
+  monthlyBalance,
+  transactionCount,
   onClick,
 }) => {
-  const accountTransactions = transactions.filter(t => t.accountId === account.id);
-  const balance = accountTransactions.reduce((sum, transaction) => {
-    if (transaction.type === 'income') return sum + transaction.amount;
-    if (transaction.type === 'expense') return sum - transaction.amount;
-    if (transaction.type === 'transfer') {
-      return transaction.transferToAccountId === account.id
-        ? sum + transaction.amount
-        : sum - transaction.amount;
-    }
-    return sum;
-  }, 0);
-
-  const recentTransactions = accountTransactions
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
-    .slice(0, 3);
-
   return (
     <div
       onClick={onClick}
-      className="card card-interactive flex flex-col justify-center min-h-[120px]"
+      className="card card-interactive flex flex-col justify-center min-h-[140px]"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -43,51 +33,47 @@ const AccountCard: React.FC<AccountCardProps> = ({
       }}
       aria-label={`View ${account.name} account details`}
     >
+      {/* Account Header */}
       <div className="flex items-center justify-between space-x-3 mb-4">
         <div className="flex items-center space-x-3">
           <div className="text-2xl">{account.icon}</div>
           <div className="min-w-0 flex-1">
-            <h3 className="heading-4 truncate content-boundary" title={account.name}>
+            <h3 className="heading-4 truncate" title={account.name}>
               {account.name}
             </h3>
-            <p className="text-sm text-secondary truncate text-field">{account.currency}</p>
+            <p className="text-sm text-secondary truncate">{account.currency}</p>
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className={`text-lg font-semibold amount ${
-            balance >= 0 ? 'text-success' : 'text-error'
+          <p className={`text-lg font-semibold ${
+            monthlyBalance >= 0 ? 'text-success' : 'text-error'
           }`}>
-            {formatCurrency(balance, account.currency)}
+            {monthlyBalance >= 0 ? '+' : ''}
+            {formatCurrency(monthlyBalance, account.currency)}
           </p>
-          <p className="text-xs text-muted number">
-            {accountTransactions.length} transactions
+          <p className="text-xs text-muted">
+            {transactionCount} transactions
           </p>
         </div>
       </div>
 
-      {recentTransactions.length > 0 && (
-        <div className="border-t border-gray-200 pt-3">
-          <p className="text-xs text-muted mb-2 truncate text-field">Recent transactions</p>
-          <div className="space-y-1">
-            {recentTransactions.map((transaction) => (
-              <div key={transaction.id} className="flex justify-between items-center text-sm space-x-2">
-                <span 
-                  className="text-secondary truncate flex-1 min-w-0 content-boundary" 
-                  title={transaction.description || transaction.category}
-                >
-                  {transaction.description || transaction.category}
-                </span>
-                <span className={`font-semibold flex-shrink-0 amount ${
-                  transaction.type === 'income' ? 'text-success' : 'text-error'
-                }`}>
-                  {transaction.type === 'income' ? '+' : '-'}
-                  {formatCurrency(transaction.amount, account.currency)}
-                </span>
-              </div>
-            ))}
+      {/* Monthly Breakdown */}
+      <div className="border-t border-gray-200 pt-3">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="text-center">
+            <p className="text-muted mb-1">Income</p>
+            <p className="font-semibold text-success">
+              +{formatCurrency(monthlyIncome, account.currency)}
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-muted mb-1">Expenses</p>
+            <p className="font-semibold text-error">
+              -{formatCurrency(monthlyExpenses, account.currency)}
+            </p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

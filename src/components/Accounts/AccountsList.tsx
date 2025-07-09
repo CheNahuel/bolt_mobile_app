@@ -61,6 +61,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
   // Filter transactions based on selected month and calculate balances
   const accountsWithFilteredData = useMemo(() => {
     return accounts.map(account => {
+      const [year, month] = selectedMonth === 'all' ? ['', ''] : selectedMonth.split('-');
       let filteredTransactions: Transaction[];
       
       if (selectedMonth === 'all') {
@@ -68,7 +69,6 @@ const AccountsList: React.FC<AccountsListProps> = ({
         filteredTransactions = transactions.filter(t => t.accountId === account.id);
       } else {
         // Filter by selected month
-        const [year, month] = selectedMonth.split('-');
         const startOfMonth = new Date(parseInt(year), parseInt(month) - 1, 1);
         const endOfMonth = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59);
         
@@ -79,9 +79,23 @@ const AccountsList: React.FC<AccountsListProps> = ({
         );
       }
       
+      // Calculate monthly income, expenses, and balance
+      const monthlyIncome = filteredTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      const monthlyExpenses = filteredTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      const monthlyBalance = monthlyIncome - monthlyExpenses;
+      
       return {
         account,
-        transactions: filteredTransactions
+        monthlyIncome,
+        monthlyExpenses,
+        monthlyBalance,
+        transactionCount: filteredTransactions.length
       };
     });
   }, [accounts, transactions, selectedMonth]);
@@ -158,11 +172,14 @@ const AccountsList: React.FC<AccountsListProps> = ({
       <div className="flex-1 flex items-center justify-center pb-24">
         <div className="container">
           <div className="space-y-4 max-w-md mx-auto py-6">
-            {accountsWithFilteredData.map(({ account, transactions: accountTransactions }) => (
+            {accountsWithFilteredData.map(({ account, monthlyIncome, monthlyExpenses, monthlyBalance, transactionCount }) => (
               <AccountCard
                 key={account.id}
                 account={account}
-                transactions={accountTransactions}
+                monthlyIncome={monthlyIncome}
+                monthlyExpenses={monthlyExpenses}
+                monthlyBalance={monthlyBalance}
+                transactionCount={transactionCount}
                 onClick={() => onAccountSelect(account.id)}
               />
             ))}
