@@ -1,9 +1,9 @@
 import React from 'react';
-import { BarChart3, CreditCard, Download, Settings } from 'lucide-react';
+import { BarChart3, CreditCard, Download, Settings, Calendar } from 'lucide-react';
 
 interface BottomNavigationProps {
   currentView: string;
-  onViewChange: (view: 'accounts' | 'charts' | 'exports' | 'settings') => void;
+  onViewChange: (view: 'accounts' | 'monthly' | 'charts' | 'exports' | 'settings') => void;
 }
 
 const BottomNavigation: React.FC<BottomNavigationProps> = ({
@@ -11,9 +11,9 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
   onViewChange,
 }) => {
   const navItems = [
+    { id: 'monthly', label: 'Monthly', icon: Calendar },
     { id: 'accounts', label: 'Accounts', icon: CreditCard },
     { id: 'charts', label: 'Charts', icon: BarChart3 },
-    { id: 'exports', label: 'Exports', icon: Download },
     { id: 'settings', label: 'Settings', icon: Settings },
   ] as const;
 

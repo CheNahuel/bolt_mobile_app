@@ -32,7 +32,7 @@ export interface AppState {
   accounts: Account[];
   transactions: Transaction[];
   categories: Category[];
-  currentView: 'accounts' | 'charts' | 'exports' | 'settings';
+  currentView: 'accounts' | 'monthly' | 'charts' | 'exports' | 'settings';
   selectedAccountId?: string;
 }
 
