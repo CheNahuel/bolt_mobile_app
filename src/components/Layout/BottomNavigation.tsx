@@ -10,6 +10,7 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({
   currentView,
   onViewChange,
 }) => {
+  const navItems = [
     { id: 'monthly', label: 'Monthly', icon: Calendar },
     { id: 'charts', label: 'Charts', icon: BarChart3 },
     { id: 'exports', label: 'Exports', icon: Download },
