@@ -38,9 +38,9 @@ const AccountsList: React.FC<AccountsListProps> = ({
   }
 
   return (
-    <div className="flex-1 pb-24">
-      <div className="container py-4">
-        <div className="space-y-4 max-w-md mx-auto">
+    <div className="flex-1 flex flex-col justify-center pb-24">
+      <div className="container">
+        <div className="space-y-4 max-w-md mx-auto py-4">
           {accounts.map((account) => (
             <AccountCard
               key={account.id}
