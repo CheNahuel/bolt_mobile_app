@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface CalculatorProps {
@@ -45,10 +45,8 @@ const Calculator: React.FC<CalculatorProps> = ({
       } else if (e.key === 'Enter' || e.key === '=') {
         calculate();
       } else if (e.key === 'Escape') {
-        onClose();
-      } else if (e.key === 'Backspace') {
-        clearEntry();
-      } else if (e.key === 'Delete') {
+        handleCancel();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
         clearAll();
       }
     };
@@ -82,14 +80,6 @@ const Calculator: React.FC<CalculatorProps> = ({
     setWaitingForOperand(false);
   };
 
-  const clearEntry = () => {
-    if (display.length > 1) {
-      setDisplay(display.slice(0, -1));
-    } else {
-      setDisplay('0');
-    }
-  };
-
   const performOperation = (nextOperation: string) => {
     const inputValue = parseFloat(display);
 
@@ -97,11 +87,12 @@ const Calculator: React.FC<CalculatorProps> = ({
       setPreviousValue(display);
     } else if (operation) {
       const currentValue = previousValue || '0';
-      const newValue = calculate(parseFloat(currentValue), inputValue, operation);
+      const newValue = calculateResult(parseFloat(currentValue), inputValue, operation);
       
       if (newValue !== null) {
-        setDisplay(String(newValue));
-        setPreviousValue(String(newValue));
+        const resultString = String(newValue);
+        setDisplay(resultString);
+        setPreviousValue(resultString);
       }
     }
 
@@ -109,46 +100,57 @@ const Calculator: React.FC<CalculatorProps> = ({
     setOperation(nextOperation);
   };
 
-  const calculate = (firstValue?: number, secondValue?: number, operation?: string) => {
-    const prev = firstValue ?? parseFloat(previousValue || '0');
-    const current = secondValue ?? parseFloat(display);
-    const op = operation ?? (operation as string);
+  const calculate = () => {
+    const prev = parseFloat(previousValue || '0');
+    const current = parseFloat(display);
 
-    if (previousValue === null || !op) {
-      return current;
+    if (previousValue === null || !operation) {
+      return;
     }
 
+    const result = calculateResult(prev, current, operation);
+    
+    if (result !== null) {
+      const resultString = String(result);
+      setDisplay(resultString);
+      setPreviousValue(resultString);
+      setOperation(null);
+      setWaitingForOperand(true);
+    }
+  };
+
+  const calculateResult = (firstValue: number, secondValue: number, operation: string): number | null => {
     let result: number;
 
-    switch (op) {
+    switch (operation) {
       case '+':
-        result = prev + current;
+        result = firstValue + secondValue;
         break;
       case '-':
-        result = prev - current;
+        result = firstValue - secondValue;
         break;
       case '*':
-        result = prev * current;
+        result = firstValue * secondValue;
         break;
       case '/':
-        if (current === 0) {
+        if (secondValue === 0) {
           setDisplay('Error');
           setPreviousValue(null);
           setOperation(null);
           setWaitingForOperand(true);
           return null;
         }
-        result = prev / current;
+        result = firstValue / secondValue;
         break;
       default:
-        return current;
+        return secondValue;
     }
 
     // Round to avoid floating point precision issues
-    result = Math.round((result + Number.EPSILON) * 100) / 100;
+    result = Math.round((result + Number.EPSILON) * 100000000) / 100000000;
 
     // Check for overflow
-    if (!isFinite(result) || result > 999999999.99) {
+    if (!isFinite(result) || Math.abs(result) > 999999999.99) {
       setDisplay('Error');
       setPreviousValue(null);
       setOperation(null);
@@ -156,21 +158,15 @@ const Calculator: React.FC<CalculatorProps> = ({
       return null;
     }
 
-    if (firstValue === undefined && secondValue === undefined) {
-      setDisplay(String(result));
-      setPreviousValue(null);
-      setOperation(null);
-      setWaitingForOperand(true);
-    }
-
     return result;
   };
 
-  const handleEquals = () => {
-    calculate();
+  const handleCancel = () => {
+    clearAll();
+    onClose();
   };
 
-  const handleUseResult = () => {
+  const handleOK = () => {
     if (display !== 'Error' && !isNaN(parseFloat(display))) {
       onResult(display);
       onClose();
@@ -186,7 +182,7 @@ const Calculator: React.FC<CalculatorProps> = ({
         <div className="calculator-header">
           <h3 className="calculator-title">Calculator</h3>
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             className="calculator-close"
             aria-label="Close calculator"
           >
@@ -212,16 +208,9 @@ const Calculator: React.FC<CalculatorProps> = ({
           <button
             onClick={clearAll}
             className="calculator-btn calculator-btn-clear"
-            title="Clear All (Delete)"
+            title="Clear All"
           >
             C
-          </button>
-          <button
-            onClick={clearEntry}
-            className="calculator-btn calculator-btn-clear"
-            title="Clear Entry (Backspace)"
-          >
-            CE
           </button>
           <button
             onClick={() => performOperation('/')}
@@ -236,6 +225,13 @@ const Calculator: React.FC<CalculatorProps> = ({
             title="Multiply"
           >
             ×
+          </button>
+          <button
+            onClick={() => performOperation('-')}
+            className="calculator-btn calculator-btn-operator"
+            title="Subtract"
+          >
+            −
           </button>
 
           {/* Row 2 */}
@@ -258,11 +254,11 @@ const Calculator: React.FC<CalculatorProps> = ({
             9
           </button>
           <button
-            onClick={() => performOperation('-')}
+            onClick={() => performOperation('+')}
             className="calculator-btn calculator-btn-operator"
-            title="Subtract"
+            title="Add"
           >
-            −
+            +
           </button>
 
           {/* Row 3 */}
@@ -285,11 +281,12 @@ const Calculator: React.FC<CalculatorProps> = ({
             6
           </button>
           <button
-            onClick={() => performOperation('+')}
-            className="calculator-btn calculator-btn-operator"
-            title="Add"
+            onClick={calculate}
+            className="calculator-btn calculator-btn-equals"
+            rowSpan={2}
+            title="Calculate"
           >
-            +
+            =
           </button>
 
           {/* Row 4 */}
@@ -311,14 +308,6 @@ const Calculator: React.FC<CalculatorProps> = ({
           >
             3
           </button>
-          <button
-            onClick={handleEquals}
-            className="calculator-btn calculator-btn-equals"
-            rowSpan={2}
-            title="Calculate (Enter)"
-          >
-            =
-          </button>
 
           {/* Row 5 */}
           <button
@@ -339,17 +328,17 @@ const Calculator: React.FC<CalculatorProps> = ({
         {/* Action Buttons */}
         <div className="calculator-actions">
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             className="btn btn-outline calculator-action-btn"
           >
             Cancel
           </button>
           <button
-            onClick={handleUseResult}
+            onClick={handleOK}
             className="btn btn-primary calculator-action-btn"
             disabled={display === 'Error'}
           >
-            Use Result
+            OK
           </button>
         </div>
       </div>
