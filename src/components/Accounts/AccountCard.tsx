@@ -32,7 +32,7 @@ const AccountCard: React.FC<AccountCardProps> = ({
   return (
     <div
       onClick={onClick}
-      className="card card-interactive"
+      className="card card-interactive flex flex-col justify-center min-h-[120px]"
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -43,15 +43,17 @@ const AccountCard: React.FC<AccountCardProps> = ({
       }}
       aria-label={`View ${account.name} account details`}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between space-x-3 mb-4">
         <div className="flex items-center space-x-3">
           <div className="text-2xl">{account.icon}</div>
           <div className="min-w-0 flex-1">
-            <h3 className="heading-4 truncate">{account.name}</h3>
-            <p className="text-sm text-secondary">{account.currency}</p>
+            <h3 className="heading-4 truncate" title={account.name}>
+              {account.name}
+            </h3>
+            <p className="text-sm text-secondary truncate">{account.currency}</p>
           </div>
         </div>
-        <div className="text-right flex-shrink-0 ml-3">
+        <div className="text-right flex-shrink-0">
           <p className={`text-lg font-semibold ${
             balance >= 0 ? 'text-success' : 'text-error'
           }`}>
@@ -65,12 +67,15 @@ const AccountCard: React.FC<AccountCardProps> = ({
 
       {recentTransactions.length > 0 && (
         <div className="border-t border-gray-200 pt-3">
-          <p className="text-xs text-muted mb-2">Recent transactions</p>
+          <p className="text-xs text-muted mb-2 truncate">Recent transactions</p>
           <div className="space-y-1">
             {recentTransactions.map((transaction) => (
-              <div key={transaction.id} className="flex justify-between text-sm">
-                <span className="text-secondary truncate flex-1 mr-2">
-                  {truncateText(transaction.description || transaction.category, 20)}
+              <div key={transaction.id} className="flex justify-between items-center text-sm space-x-2">
+                <span 
+                  className="text-secondary truncate flex-1 min-w-0" 
+                  title={transaction.description || transaction.category}
+                >
+                  {transaction.description || transaction.category}
                 </span>
                 <span className={`font-semibold flex-shrink-0 ${
                   transaction.type === 'income' ? 'text-success' : 'text-error'
@@ -85,12 +90,6 @@ const AccountCard: React.FC<AccountCardProps> = ({
       )}
     </div>
   );
-};
-
-// Helper function to truncate text
-const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3) + '...';
 };
 
 export default AccountCard;

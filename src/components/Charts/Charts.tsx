@@ -152,7 +152,10 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm text-secondary truncate flex-1">
+                    <span 
+                      className="text-sm text-secondary truncate flex-1 min-w-0" 
+                      title={`${item.icon} ${item.name}`}
+                    >
                       {item.icon} {item.name}
                     </span>
                   </div>

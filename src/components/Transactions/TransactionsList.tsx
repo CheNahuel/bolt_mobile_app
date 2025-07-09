@@ -47,7 +47,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
 
   const truncateText = (text: string, maxLength: number): string => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 3) + '...';
+    return text.substring(0, maxLength - 1) + '…';
   };
 
   const handleDeleteClick = (e: React.MouseEvent, transactionId: string) => {
@@ -99,8 +99,11 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     {getCategoryIcon(transaction.category, transaction.type)}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-medium truncate">
-                      {truncateText(transaction.description || transaction.category, 25)}
+                    <h4 
+                      className="font-medium truncate" 
+                      title={transaction.description || transaction.category}
+                    >
+                      {transaction.description || transaction.category}
                     </h4>
                     <p className="text-sm text-muted">
                       {formatDate(transaction.date)}
@@ -115,8 +118,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       {transaction.type === 'income' ? '+' : '-'}
                       {formatCurrency(transaction.amount, currency)}
                     </p>
-                    <p className="text-xs text-muted">
-                      {truncateText(transaction.category, 15)}
+                    <p className="text-xs text-muted truncate" title={transaction.category}>
+                      {transaction.category}
                     </p>
                   </div>
                   <button

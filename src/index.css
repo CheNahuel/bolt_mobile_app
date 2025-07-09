@@ -636,35 +636,10 @@ body {
   min-width: 0;
 }
 
-/* Responsive text truncation */
-.truncate-mobile {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-@media (min-width: 640px) {
-  .truncate-mobile {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-  }
-}
-
 /* Flex utilities for better text handling */
 .flex-1 { flex: 1; min-width: 0; }
 .flex-shrink-0 { flex-shrink: 0; }
 .min-w-0 { min-width: 0; }
-
-/* Ensure no horizontal overflow */
-body, html {
-  overflow-x: hidden;
-}
-
-* {
-  box-sizing: border-box;
-}
 
 /* Container improvements */
 .container {
@@ -674,6 +649,7 @@ body, html {
   padding-right: var(--space-4);
   margin: 0 auto;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Responsive padding adjustments */
@@ -690,7 +666,42 @@ body, html {
   .modal-content {
     padding: var(--space-4);
     margin: var(--space-2);
+    max-width: calc(100vw - 2rem);
   }
+}
+
+/* Ensure no horizontal overflow globally */
+body, html {
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Text with ellipsis helper classes */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Improved card layout */
+.card {
+  overflow: hidden;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Better flex layouts */
+.flex-container {
+  display: flex;
+  min-width: 0;
+}
+
+.flex-item {
+  min-width: 0;
+  flex: 1;
 }
 
 .max-w-md { max-width: 28rem; }
