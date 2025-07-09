@@ -207,18 +207,22 @@ const Calculator: React.FC<CalculatorProps> = ({
 
   if (!isOpen) return null;
 
-  const calculatorStyle: React.CSSProperties = position ? {
+  // Determine if calculator should be positioned relative to input or centered
+  const isPositioned = position !== undefined;
+  
+  const calculatorStyle: React.CSSProperties = isPositioned ? {
     position: 'fixed',
     top: position.top,
     left: position.left,
     zIndex: 1000,
+    margin: 0,
   } : {};
 
   return (
     <div className="calculator-overlay">
       <div 
         ref={calculatorRef}
-        className="calculator-popup"
+        className={`calculator-popup ${isPositioned ? 'positioned' : ''}`}
         style={calculatorStyle}
       >
         {/* Header */}
