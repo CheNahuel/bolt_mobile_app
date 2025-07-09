@@ -660,6 +660,23 @@ body {
 .hover\:bg-gray-200:hover { background-color: #e2e8f0; }
 .hover\:border-gray-300:hover { border-color: #cbd5e1; }
 .hover\:text-blue-700:hover { color: #1d4ed8; }
+.hover\:bg-red-50:hover { background-color: #fef2f2; }
+.hover\:bg-green-50:hover { background-color: #f0fdf4; }
+
+.border-red-200 { border-color: #fecaca; }
+.border-green-200 { border-color: #bbf7d0; }
+.border-red-500 { border-color: var(--color-error); }
+.border-green-500 { border-color: var(--color-success); }
+
+.bg-red-50 { background-color: #fef2f2; }
+.bg-green-50 { background-color: #f0fdf4; }
+.bg-red-100 { background-color: #fee2e2; }
+.bg-green-100 { background-color: #dcfce7; }
+
+.text-red-600 { color: #dc2626; }
+.text-green-600 { color: #16a34a; }
+.text-red-700 { color: #b91c1c; }
+.text-green-700 { color: #15803d; }
 
 .focus\:ring-2:focus { box-shadow: 0 0 0 2px var(--color-primary-light); }
 .focus\:ring-blue-500:focus { box-shadow: 0 0 0 2px var(--color-primary-light); }
