@@ -34,14 +34,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Initialize form data properly
+  // Initialize form data and step properly
   React.useEffect(() => {
-    if (!transaction) {
-      // For new transactions, always start with category selection
-      setStep('category');
-      if (initialType) {
-        setFormData(prev => ({ ...prev, type: initialType }));
-      }
+    if (!transaction && initialType) {
+      setFormData(prev => ({ ...prev, type: initialType }));
+      setStep('category'); // Always show category selection for new transactions
     }
   }, [initialType, transaction]);
 
@@ -96,6 +93,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   const availableCategories = categories.filter(c => c.type === formData.type);
+
+  // Debug logging
+  console.log('TransactionForm render:', { step, formData, availableCategories: availableCategories.length });
 
   if (step === 'category') {
     return (
@@ -162,6 +162,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               </button>
             ))}
           </div>
+          
+          {availableCategories.length === 0 && (
+            <div className="p-6 text-center">
+              <p className="text-muted">No categories available for {formData.type}</p>
+            </div>
+          )}
         </div>
       </div>
     );
