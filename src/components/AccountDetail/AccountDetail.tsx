@@ -80,7 +80,6 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         {/* Account Balance Card */}
         <div className="p-4">
           <div className="card text-center">
-            <div className="text-20xl mb-2">{account.icon}</div>
             <p className={`heading-1 text-center ${
               balance >= 0 ? 'text-success' : 'text-error'
             }`}>
