@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Transaction, Category } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/helpers';
+import ConfirmationModal from '../Common/ConfirmationModal';
 
 interface TransactionsListProps {
   transactions: Transaction[];
@@ -19,6 +20,9 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   onTransactionEdit,
   onTransactionDelete,
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [transactionToDeleteId, setTransactionToDeleteId] = useState<string | undefined>();
+
   const sortedTransactions = transactions
     .sort((a, b) => b.date.getTime() - a.date.getTime());
 
@@ -48,69 +52,103 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
 
   const handleDeleteClick = (e: React.MouseEvent, transactionId: string) => {
     e.stopPropagation(); // Prevent triggering the edit action
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      onTransactionDelete(transactionId);
-    }
+    setTransactionToDeleteId(transactionId);
+    setShowDeleteConfirm(true);
   };
+
+  const handleConfirmDelete = () => {
+    if (transactionToDeleteId) {
+      onTransactionDelete(transactionToDeleteId);
+    }
+    handleCancelDelete();
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setTransactionToDeleteId(undefined);
+  };
+
+  const getTransactionToDelete = () => {
+    return transactions.find(t => t.id === transactionToDeleteId);
+  };
+
   return (
     <div className="flex-1 pb-24">
       <div className="container py-4">
-      <div className="max-w-md mx-auto space-y-3">
-        {sortedTransactions.map((transaction) => (
-          <div
-            key={transaction.id}
-            className="card"
-          >
-            <div 
-              className="flex items-center justify-between cursor-pointer"
-              onClick={() => onTransactionEdit(transaction)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onTransactionEdit(transaction);
-                }
-              }}
-              aria-label={`Edit ${transaction.description || transaction.category} transaction`}
+        <div className="max-w-md mx-auto space-y-3">
+          {sortedTransactions.map((transaction) => (
+            <div
+              key={transaction.id}
+              className="card"
             >
-              <div className="flex items-center space-x-3">
-                <div className="text-2xl">
-                  {getCategoryIcon(transaction.category, transaction.type)}
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => onTransactionEdit(transaction)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onTransactionEdit(transaction);
+                  }
+                }}
+                aria-label={`Edit ${transaction.description || transaction.category} transaction`}
+              >
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="text-2xl flex-shrink-0">
+                    {getCategoryIcon(transaction.category, transaction.type)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-medium truncate">
+                      {truncateText(transaction.description || transaction.category, 25)}
+                    </h4>
+                    <p className="text-sm text-muted">
+                      {formatDate(transaction.date)}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h4 className="font-medium">
-                    {truncateText(transaction.description || transaction.category, 25)}
-                  </h4>
-                  <p className="text-sm text-muted">
-                    {formatDate(transaction.date)}
-                  </p>
+                <div className="text-right flex-shrink-0 ml-3 flex items-center space-x-2">
+                  <div>
+                    <p className={`font-semibold ${
+                      transaction.type === 'income' ? 'text-success' : 'text-error'
+                    }`}>
+                      {transaction.type === 'income' ? '+' : '-'}
+                      {formatCurrency(transaction.amount, currency)}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {truncateText(transaction.category, 15)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => handleDeleteClick(e, transaction.id)}
+                    className="btn btn-ghost btn-sm text-error hover:bg-red-50 p-2"
+                    aria-label={`Delete ${transaction.description || transaction.category} transaction`}
+                    title="Delete transaction"
+                  >
+                    <Trash2 size={16} />
+                  </button>
                 </div>
-              </div>
-              <div className="text-right flex-shrink-0 ml-3">
-                <p className={`font-semibold ${
-                  transaction.type === 'income' ? 'text-success' : 'text-error'
-                }`}>
-                  {transaction.type === 'income' ? '+' : '-'}
-                  {formatCurrency(transaction.amount, currency)}
-                </p>
-                <p className="text-xs text-muted">
-                  {truncateText(transaction.category, 15)}
-                </p>
               </div>
             </div>
-            <button
-              onClick={(e) => handleDeleteClick(e, transaction.id)}
-              className="btn btn-ghost btn-sm text-error hover:bg-red-50 mt-2 w-full"
-              aria-label={`Delete ${transaction.description || transaction.category} transaction`}
-            >
-              <Trash2 size={16} />
-              <span>Delete Transaction</span>
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-      </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete this transaction${
+          getTransactionToDelete() 
+            ? ` "${getTransactionToDelete()!.description || getTransactionToDelete()!.category}"`
+            : ''
+        }? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };
