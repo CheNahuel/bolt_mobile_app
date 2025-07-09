@@ -3,9 +3,8 @@ import { Plus, Minus } from 'lucide-react';
 import { Transaction, Category, Account } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import Header from '../Layout/Header';
-import CategorySelector from '../Transactions/CategorySelector';
+import TransactionForm from '../Transactions/TransactionForm';
 import TransactionsList from '../Transactions/TransactionsList';
-import TransactionDetailsForm from '../Transactions/TransactionDetailsForm.tsx';
 
 interface AccountDetailProps {
   account: Account;
@@ -24,11 +23,9 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
   onTransactionSave,
   onTransactionDelete,
 }) => {
-  const [showCategorySelector, setShowCategorySelector] = useState(false);
-  const [showDetailsForm, setShowDetailsForm] = useState(false);
+  const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
-  const [selectedTransactionType, setSelectedTransactionType] = useState<'expense' | 'income' | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [initialTransactionType, setInitialTransactionType] = useState<'expense' | 'income' | null>(null);
 
   const accountTransactions = transactions.filter(t => t.accountId === account.id);
   const balance = accountTransactions.reduce((sum, transaction) => {
@@ -44,29 +41,20 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
 
   const handleAddExpense = () => {
     setEditingTransaction(undefined);
-    setSelectedTransactionType('expense');
-    setSelectedCategory('');
-    setShowCategorySelector(true);
+    setInitialTransactionType('expense');
+    setShowTransactionForm(true);
   };
 
   const handleAddIncome = () => {
     setEditingTransaction(undefined);
-    setSelectedTransactionType('income');
-    setSelectedCategory('');
-    setShowCategorySelector(true);
+    setInitialTransactionType('income');
+    setShowTransactionForm(true);
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
     setEditingTransaction(transaction);
-    setSelectedTransactionType(transaction.type);
-    setSelectedCategory(transaction.category);
-    setShowDetailsForm(true);
-  };
-
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category.name);
-    setShowCategorySelector(false);
-    setShowDetailsForm(true);
+    setInitialTransactionType(null);
+    setShowTransactionForm(true);
   };
 
   const handleTransactionSave = (transaction: Transaction) => {
@@ -74,20 +62,11 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
     handleFormCancel();
   };
 
-  const handleDeleteTransaction = (transactionId: string) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      onTransactionDelete(transactionId);
-    }
-  };
-
   const handleFormCancel = () => {
-    setShowCategorySelector(false);
-    setShowDetailsForm(false);
+    setShowTransactionForm(false);
     setEditingTransaction(undefined);
-    setSelectedTransactionType(null);
-    setSelectedCategory('');
+    setInitialTransactionType(null);
   };
-
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -143,22 +122,13 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         />
       </div>
 
-      {/* Category Selector Popup */}
-      <CategorySelector
-        isOpen={showCategorySelector}
-        type={selectedTransactionType || 'expense'}
-        categories={categories}
-        onCategorySelect={handleCategorySelect}
-        onClose={handleFormCancel}
-      />
-
-      {/* Transaction Details Form Modal */}
-      {showDetailsForm && selectedTransactionType && (
-        <TransactionDetailsForm
+      {/* Transaction Form Modal */}
+      {showTransactionForm && (
+        <TransactionForm
           account={account}
-          type={selectedTransactionType}
-          category={selectedCategory}
+          categories={categories}
           transaction={editingTransaction}
+          initialType={initialTransactionType}
           onSave={handleTransactionSave}
           onCancel={handleFormCancel}
         />
