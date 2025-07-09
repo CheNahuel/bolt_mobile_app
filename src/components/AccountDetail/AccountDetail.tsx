@@ -3,8 +3,9 @@ import { Plus, Minus } from 'lucide-react';
 import { Transaction, Category, Account } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import Header from '../Layout/Header';
-import TransactionForm from '../Transactions/TransactionForm';
+import CategorySelector from '../Transactions/CategorySelector';
 import TransactionsList from '../Transactions/TransactionsList';
+import TransactionDetailsForm from '../Transactions/TransactionDetailsForm';
 
 interface AccountDetailProps {
   account: Account;
@@ -23,9 +24,11 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
   onTransactionSave,
   onTransactionDelete,
 }) => {
-  const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [showCategorySelector, setShowCategorySelector] = useState(false);
+  const [showDetailsForm, setShowDetailsForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
   const [selectedTransactionType, setSelectedTransactionType] = useState<'expense' | 'income' | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   const accountTransactions = transactions.filter(t => t.accountId === account.id);
   const balance = accountTransactions.reduce((sum, transaction) => {
@@ -42,19 +45,28 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
   const handleAddExpense = () => {
     setEditingTransaction(undefined);
     setSelectedTransactionType('expense');
-    setShowTransactionForm(true);
+    setSelectedCategory('');
+    setShowCategorySelector(true);
   };
 
   const handleAddIncome = () => {
     setEditingTransaction(undefined);
     setSelectedTransactionType('income');
-    setShowTransactionForm(true);
+    setSelectedCategory('');
+    setShowCategorySelector(true);
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
     setEditingTransaction(transaction);
     setSelectedTransactionType(transaction.type);
-    setShowTransactionForm(true);
+    setSelectedCategory(transaction.category);
+    setShowDetailsForm(true);
+  };
+
+  const handleCategorySelect = (category: Category) => {
+    setSelectedCategory(category.name);
+    setShowCategorySelector(false);
+    setShowDetailsForm(true);
   };
 
   const handleTransactionSave = (transaction: Transaction) => {
@@ -69,9 +81,11 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
   };
 
   const handleFormCancel = () => {
-    setShowTransactionForm(false);
+    setShowCategorySelector(false);
+    setShowDetailsForm(false);
     setEditingTransaction(undefined);
     setSelectedTransactionType(null);
+    setSelectedCategory('');
   };
 
 
@@ -129,13 +143,22 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         />
       </div>
 
-      {/* Transaction Form Modal */}
-      {showTransactionForm && (
-        <TransactionForm
+      {/* Category Selector Popup */}
+      <CategorySelector
+        isOpen={showCategorySelector}
+        type={selectedTransactionType || 'expense'}
+        categories={categories}
+        onCategorySelect={handleCategorySelect}
+        onClose={handleFormCancel}
+      />
+
+      {/* Transaction Details Form Modal */}
+      {showDetailsForm && selectedTransactionType && (
+        <TransactionDetailsForm
           account={account}
-          categories={categories}
+          type={selectedTransactionType}
+          category={selectedCategory}
           transaction={editingTransaction}
-          initialType={selectedTransactionType}
           onSave={handleTransactionSave}
           onCancel={handleFormCancel}
         />
