@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({
               <ArrowLeft size={20} />
             </button>
           )}
-          <h1 className="header-title ml-2">
+          <h1 className="header-title ml-2 truncate" title={title}>
             {title}
           </h1>
         </div>
