@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Minus, Plus, Calendar } from 'lucide-react';
 import Calculator from '../Calculator/Calculator';
 import { Transaction, Category, Account } from '../../types';
@@ -76,6 +76,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   const [dateOption, setDateOption] = useState<DateOption>(initialDateOption);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCalculator, setShowCalculator] = useState(false);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form data and step properly
   React.useEffect(() => {
@@ -105,6 +106,26 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     setDateOption(option);
     const newDate = getDateFromOption(option);
     setFormData(prev => ({ ...prev, date: newDate }));
+    
+    // If "Other" is selected, programmatically open the date picker
+    if (option === 'other') {
+      setTimeout(() => {
+        if (dateInputRef.current) {
+          try {
+            // Try to use showPicker() for modern browsers
+            if ('showPicker' in dateInputRef.current) {
+              (dateInputRef.current as any).showPicker();
+            } else {
+              // Fallback to focus() for older browsers
+              dateInputRef.current.focus();
+            }
+          } catch (error) {
+            // Fallback if showPicker() is not supported
+            dateInputRef.current.focus();
+          }
+        }
+      }, 100);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -361,15 +382,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               </button>
             </div>
 
-            {/* Date Picker - Only show when "Other" is selected */}
-            {dateOption === 'other' && (
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                className="form-input w-full"
-              />
-            )}
+            {/* Hidden Date Picker - Always present but visually hidden */}
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              className="absolute w-0 h-0 opacity-0 pointer-events-none"
+              tabIndex={-1}
+            />
           </div>
 
           <div className="form-group">
