@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Minus, Plus, Calendar } from 'lucide-react';
-import { parse } from 'date-fns';
 import Calculator from '../Calculator/Calculator';
 import DatePickerModal from '../Common/DatePickerModal';
 import { Transaction, Category, Account } from '../../types';
@@ -161,7 +160,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       amount: parseAmount(formData.amount),
       category: formData.category,
       description: formData.description.trim() || undefined,
-      date: parse(formData.date, 'yyyy-MM-dd', new Date()),
+      date: new Date(formData.date),
       createdAt: transaction?.createdAt || new Date(),
       synced: false,
     };
