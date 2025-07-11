@@ -386,6 +386,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 Other
               </button>
             </div>
+          </div>
 
           <div className="form-group">
             <label className="form-label">
