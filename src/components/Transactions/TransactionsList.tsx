@@ -29,9 +29,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   if (transactions.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-        <h3 className="heading-3 mb-2">
           No transactions yet
-        </h3>
+          No transactions yet
         <p className="text-secondary">
           Start by adding your first expense or income
         </p>
@@ -99,7 +98,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 
-                      className="text-sm font-medium truncate" 
+                      className="text-base font-medium truncate" 
                       title={transaction.description || transaction.category}
                     >
                       {transaction.description || transaction.category}
@@ -111,7 +110,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 </div>
                 <div className="text-right flex-shrink-0 flex items-center space-x-2">
                   <div>
-                    <p className={`font-semibold text-right ${
+                    <p className={`text-lg font-semibold text-right ${
                       transaction.type === 'income' ? 'text-success' : 'text-error'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}

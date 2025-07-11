@@ -124,9 +124,8 @@ const AccountsList: React.FC<AccountsListProps> = ({
 
         {/* Empty State */}
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <h2 className="heading-3 mb-2">
             No accounts yet
-          </h2>
+            No accounts yet
           <p className="text-secondary mb-6">
             Create your first account to start tracking your expenses and income
           </p>
@@ -151,7 +150,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="form-select w-full text-center text-lg font-semibold appearance-none bg-white border-2 border-primary rounded-lg px-4 py-3 cursor-pointer transition-all hover:border-primary-hover focus:ring-2 focus:ring-primary-light text-field"
+              className="form-select w-full text-center text-lg font-semibold appearance-none bg-white border-2 border-primary rounded-lg px-4 py-3 cursor-pointer transition-all hover:border-primary-hover focus:ring-2 focus:ring-primary-light"
             >
               {availableMonths.map(month => (
                 <option key={month.value} value={month.value}>

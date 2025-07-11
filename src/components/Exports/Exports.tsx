@@ -141,21 +141,11 @@ ${transactions
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold mb-4">Summary</h2>
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Accounts</span>
-                <span className="font-medium text-right">{accounts.length}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-gray-600">Transactions</span>
                 <span className="font-medium text-right">{transactions.length}</span>
+                <span className="font-medium text-right">{accounts.length}</span>
               </div>
-              <div className="flex justify-between">
                 <span className="text-gray-600">Total Income</span>
-                <span className="font-medium text-green-600 text-right">
-                  {formatCurrency(totalIncome, 'USD')}
-                </span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-gray-600">Total Expenses</span>
                 <span className="font-medium text-red-600 text-right">
                   {formatCurrency(totalExpenses, 'USD')}
@@ -168,11 +158,6 @@ ${transactions
                     totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'
                   } text-right`}>
                     {formatCurrency(totalIncome - totalExpenses, 'USD')}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Export Options */}
           <div className="bg-white rounded-xl p-6 shadow-sm">

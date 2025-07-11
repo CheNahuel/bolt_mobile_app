@@ -65,7 +65,6 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
     return (
       <div className="flex flex-col h-full">
         <Header title="Charts" />
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <h2 className="heading-3 mb-2">
             No data to display
           </h2>
@@ -90,23 +89,13 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
               <h3 className="text-sm text-secondary mb-1">Total Income</h3>
               <p className="text-xl font-bold text-success text-right">
                 {formatCurrency(totalIncome, 'USD')}
-              </p>
-            </div>
-            <div className="card">
-              <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
-              <p className="text-xl font-bold text-error text-right">
                 {formatCurrency(totalExpenses, 'USD')}
               </p>
             </div>
           </div>
-
-          {/* Expense Breakdown */}
-          {expenseData.length > 0 && (
-            <div className="card">
-              <h3 className="heading-4 mb-4">Expense Breakdown</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+              <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
+              <p className="text-xl font-bold text-error text-right">
+                {formatCurrency(totalExpenses, 'USD')}
                     <Pie
                       data={expenseData}
                       cx="50%"
@@ -123,11 +112,6 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     <Tooltip
                       formatter={(value: number) => [
                         formatCurrency(value, 'USD'),
-                        'Amount'
-                      ]}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
               </div>
               <div className="grid grid-cols-2 gap-2 mt-4">
                 {expenseData.map((item, index) => (
@@ -168,11 +152,6 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     <Tooltip
                       formatter={(value: number, name: string) => [
                         formatCurrency(value, 'USD'),
-                        name === 'income' ? 'Income' : 'Expenses'
-                      ]}
-                      labelFormatter={(value) => {
-                        const date = new Date(value + '-01');
-                        return date.toLocaleDateString('en-US', { 
                           month: 'long', 
                           year: 'numeric' 
                         });
