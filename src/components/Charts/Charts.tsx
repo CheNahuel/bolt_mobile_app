@@ -65,6 +65,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
     return (
       <div className="flex flex-col h-full">
         <Header title="Charts" />
+        <div>
           <h2 className="heading-3 mb-2">
             No data to display
           </h2>
@@ -83,19 +84,28 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
       <div className="flex-1 pb-24 overflow-y-auto">
         <div className="container">
           <div className="space-y-6 py-4">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="card">
-              <h3 className="text-sm text-secondary mb-1">Total Income</h3>
-              <p className="text-xl font-bold text-success text-right">
-                {formatCurrency(totalIncome, 'USD')}
-                {formatCurrency(totalExpenses, 'USD')}
-              </p>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="card">
+                <h3 className="text-sm text-secondary mb-1">Total Income</h3>
+                <p className="text-xl font-bold text-success text-right">
+                  {formatCurrency(totalIncome, 'USD')}
+                </p>
+              </div>
+              <div className="card">
+                <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
+                <p className="text-xl font-bold text-error text-right">
+                  {formatCurrency(totalExpenses, 'USD')}
+                </p>
+              </div>
             </div>
-          </div>
-              <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
-              <p className="text-xl font-bold text-error text-right">
-                {formatCurrency(totalExpenses, 'USD')}
+
+            {/* Expense Breakdown */}
+            <div className="card">
+              <h3 className="heading-4 mb-4">Expense Breakdown</h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
                     <Pie
                       data={expenseData}
                       cx="50%"
@@ -111,7 +121,11 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     </Pie>
                     <Tooltip
                       formatter={(value: number) => [
-                        formatCurrency(value, 'USD'),
+                        formatCurrency(value, 'USD')
+                      ]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
               <div className="grid grid-cols-2 gap-2 mt-4">
                 {expenseData.map((item, index) => (
@@ -130,40 +144,40 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                 ))}
               </div>
             </div>
-          )}
 
-          {/* Monthly Trends */}
-          {monthlyTrends.length > 1 && (
-            <div className="card">
-              <h3 className="heading-4 mb-4">Monthly Trends</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="month" 
-                      tick={{ fontSize: 12 }}
-                      tickFormatter={(value) => {
-                        const date = new Date(value + '-01');
-                        return date.toLocaleDateString('en-US', { month: 'short' });
-                      }}
-                    />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip
-                      formatter={(value: number, name: string) => [
-                        formatCurrency(value, 'USD'),
-                          month: 'long', 
-                          year: 'numeric' 
-                        });
-                      }}
-                    />
-                    <Bar dataKey="income" fill="#22c55e" />
-                    <Bar dataKey="expenses" fill="#ef4444" />
-                  </BarChart>
-                </ResponsiveContainer>
+            {/* Monthly Trends */}
+            {monthlyTrends.length > 1 && (
+              <div className="card">
+                <h3 className="heading-4 mb-4">Monthly Trends</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={monthlyTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => {
+                          const date = new Date(value + '-01');
+                          return date.toLocaleDateString('en-US', { month: 'short' });
+                        }}
+                      />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        formatter={(value: number, name: string) => [
+                          formatCurrency(value, 'USD'),
+                          new Date(name + '-01').toLocaleDateString('en-US', { 
+                            month: 'long', 
+                            year: 'numeric' 
+                          })
+                        ]}
+                      />
+                      <Bar dataKey="income" fill="#22c55e" />
+                      <Bar dataKey="expenses" fill="#ef4444" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
         </div>
       </div>
