@@ -110,7 +110,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                className="form-select w-full text-center text-lg font-semibold appearance-none bg-white border-2 border-primary rounded-lg px-4 py-3 pr-10 cursor-pointer transition-all hover:border-primary-hover focus:ring-2 focus:ring-primary-light"
+                className="form-select w-full text-center text-lg font-semibold appearance-none bg-white border-2 border-primary rounded-lg px-4 py-3 cursor-pointer transition-all hover:border-primary-hover focus:ring-2 focus:ring-primary-light"
               >
                 {availableMonths.map(month => (
                   <option key={month.value} value={month.value}>
@@ -118,10 +118,6 @@ const AccountsList: React.FC<AccountsListProps> = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown 
-                size={20} 
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary pointer-events-none"
-              />
             </div>
           </div>
         </div>
