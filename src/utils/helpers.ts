@@ -1,3 +1,5 @@
+import { format, parse } from 'date-fns';
+
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
@@ -11,7 +13,7 @@ export function formatDate(date: Date): string {
 }
 
 export function formatDateInput(date: Date): string {
-  return date.toISOString().split('T')[0];
+  return format(date, 'yyyy-MM-dd');
 }
 
 export function parseAmount(value: string): number {

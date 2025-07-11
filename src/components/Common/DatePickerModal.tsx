@@ -1,7 +1,6 @@
 import React from 'react';
 import { DayPicker } from 'react-day-picker';
 import { X } from 'lucide-react';
-import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
 
 interface DatePickerModalProps {
