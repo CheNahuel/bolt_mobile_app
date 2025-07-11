@@ -56,7 +56,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         yesterday.setDate(yesterday.getDate() - 1);
         return formatDateInput(yesterday);
       case 'other':
-        return formData.date; // Keep current date for 'other'
+        // For 'other', we don't change the date - it will be set by the date picker
+        return formData.date || formatDateInput(today);
       default:
         return formatDateInput(today);
     }
@@ -104,39 +105,41 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   const handleDateOptionChange = (option: DateOption) => {
     setDateOption(option);
-    const newDate = getDateFromOption(option);
-    setFormData(prev => ({ ...prev, date: newDate }));
+    
+    // Only update the date for 'today' and 'yesterday', not for 'other'
+    if (option !== 'other') {
+      const newDate = getDateFromOption(option);
+      setFormData(prev => ({ ...prev, date: newDate }));
+    }
     
     // If "Other" is selected, programmatically open the date picker
     if (option === 'other') {
-      // Use requestAnimationFrame to ensure DOM updates are complete
-      requestAnimationFrame(() => {
+      // Use setTimeout to ensure state updates are complete
+      setTimeout(() => {
         if (dateInputRef.current) {
-          // Temporarily make the input visible and interactable
-          const originalStyle = dateInputRef.current.style.cssText;
-          dateInputRef.current.style.cssText = 'position: fixed; top: 50%; left: 50%; opacity: 0; pointer-events: auto; z-index: -1;';
-          
           try {
             // Try modern showPicker API first
             if ('showPicker' in dateInputRef.current && typeof (dateInputRef.current as any).showPicker === 'function') {
               (dateInputRef.current as any).showPicker();
             } else {
-              // Fallback to click event
+              // Fallback: temporarily make visible and trigger click
+              const originalStyle = dateInputRef.current.style.cssText;
+              dateInputRef.current.style.cssText = 'position: fixed; top: 50%; left: 50%; opacity: 0; pointer-events: auto; z-index: 1000;';
               dateInputRef.current.focus();
               dateInputRef.current.click();
+              
+              // Restore original styling after a brief delay
+              setTimeout(() => {
+                if (dateInputRef.current) {
+                  dateInputRef.current.style.cssText = originalStyle;
+                }
+              }, 100);
             }
           } catch (error) {
             console.log('Date picker trigger failed:', error);
-          } finally {
-            // Restore original hidden styling after a brief delay
-            setTimeout(() => {
-              if (dateInputRef.current) {
-                dateInputRef.current.style.cssText = originalStyle;
-              }
-            }, 100);
           }
         }
-      });
+      }, 50);
     }
   };
 
