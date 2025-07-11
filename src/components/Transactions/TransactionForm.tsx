@@ -387,20 +387,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               </button>
             </div>
 
-            {/* Display selected date */}
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-secondary mb-1">Selected Date</p>
-              <p className="font-semibold">
-                {new Date(formData.date).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
-            </div>
-          </div>
-
           <div className="form-group">
             <label className="form-label">
               Description (optional)
