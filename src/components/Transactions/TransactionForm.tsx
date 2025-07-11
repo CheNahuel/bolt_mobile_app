@@ -109,22 +109,20 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     
     // If "Other" is selected, programmatically open the date picker
     if (option === 'other') {
-      setTimeout(() => {
-        if (dateInputRef.current) {
-          try {
-            // Try to use showPicker() for modern browsers
-            if ('showPicker' in dateInputRef.current) {
-              (dateInputRef.current as any).showPicker();
-            } else {
-              // Fallback to focus() for older browsers
-              dateInputRef.current.focus();
-            }
-          } catch (error) {
-            // Fallback if showPicker() is not supported
+      if (dateInputRef.current) {
+        try {
+          // Try to use showPicker() for modern browsers
+          if ('showPicker' in dateInputRef.current) {
+            (dateInputRef.current as any).showPicker();
+          } else {
+            // Fallback to focus() for older browsers
             dateInputRef.current.focus();
           }
+        } catch (error) {
+          // Fallback if showPicker() is not supported
+          dateInputRef.current.focus();
         }
-      }, 100);
+      }
     }
   };
 
