@@ -111,7 +111,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                 </div>
                 <div className="flex items-center space-x-2 flex-1 justify-end max-w-[50%]">
                   <div className="text-right min-w-0 flex-1">
-                    <p className={`text-lg font-semibold text-right ${
+                    <p className={`text-lg font-medium text-right ${
                       transaction.type === 'income' ? 'text-success' : 'text-error'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}
