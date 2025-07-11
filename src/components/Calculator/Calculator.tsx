@@ -492,7 +492,7 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   const isDeleteAllowed = () => {
-    return !error && (display !== '0,00' || currentNumber !== '');
+    return (display !== '0,00' || currentNumber !== '');
   };
 
   // Handle clicks outside calculator
