@@ -90,14 +90,6 @@ export function validateAmountInput(input: string): ValidationResult {
       errorMessage: 'Amount must be greater than 0,00'
     };
   }
-  // Check maximum limit (999,999,999.99)
-  const MAX_AMOUNT = new Decimal('999999999.99');
-  if (numericValue.gt(MAX_AMOUNT)) {
-    return {
-      isValid: false,
-      errorMessage: 'Amount cannot exceed 999.999.999,99'
-    };
-  }
 
   // Check for edge cases with decimal precision
   const decimalPart = trimmedInput.split('.')[1];
@@ -164,21 +156,5 @@ export function validateAmountRealTime(input: string): {
 
   const result = validateAmountInput(input);
   
-  // Add warnings for potential issues
-  if (result.isValid) {
-    try {
-      const numericValue = new Decimal(input.trim().replace(',', '.'));
-    
-      if (numericValue.gt(100000)) {
-        return {
-          ...result,
-          warningMessage: 'Large amount - please verify'
-        };
-      }
-    } catch (error) {
-      // If parsing fails, just return the original result
-    }
-  }
-
   return result;
 }

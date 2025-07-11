@@ -282,11 +282,6 @@ const Calculator: React.FC<CalculatorProps> = ({
       // Round to 2 decimal places for display
       result = result.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
 
-      if (!result.isFinite()) {
-        setError('Result is too large');
-        return null;
-      }
-
       return result;
     } catch (error) {
       setError('Calculation error');
@@ -514,11 +509,11 @@ const Calculator: React.FC<CalculatorProps> = ({
         {/* Display */}
         <div className="calculator-display">
           <div className="calculator-display-text">
-            {formatNumberForDisplay(previousNumber)} {operation}
+            {display}
           </div>
           {operation && previousNumber && inputState === 'operator' && (
             <div className="calculator-operation">
-              {formatNumberForDisplay(parseFloat(previousNumber))} {operation}
+              {formatNumberForDisplay(previousNumber)} {operation}
             </div>
           )}
           {error && (
