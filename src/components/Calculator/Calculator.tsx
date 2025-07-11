@@ -732,9 +732,17 @@ const Calculator: React.FC<CalculatorProps> = ({
             onClick={handleOK}
             className="btn btn-primary calculator-action-btn"
             disabled={!isOKButtonEnabled()}
-  // Use the comprehensive validation utility (convert comma to dot for validation)
-  const validationResult = validateAmountInput(valueToValidate.replace(',', '.'));
-  return validationResult.isValid && numericValue >= 0.01;
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const exceedsMaxValue = (num: number): boolean => {
+  return Math.abs(num) > 999999999.99;
 };
 
 export default Calculator;
