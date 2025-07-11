@@ -52,22 +52,6 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
           </button>
         </div>
 
-        {/* Quick Date Options */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <button
-            onClick={handleTodayClick}
-            className="btn btn-outline"
-          >
-            Today
-          </button>
-          <button
-            onClick={handleYesterdayClick}
-            className="btn btn-outline"
-          >
-            Yesterday
-          </button>
-        </div>
-
         {/* Date Picker */}
         <div className="date-picker-container">
           <DayPicker

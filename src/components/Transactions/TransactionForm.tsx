@@ -382,7 +382,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     : 'btn-outline'
                 }`}
               >
-                <Calendar size={16} />
                 Other
               </button>
             </div>
