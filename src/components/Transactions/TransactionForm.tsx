@@ -109,21 +109,35 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     
     // If "Other" is selected, programmatically open the date picker
     if (option === 'other') {
-      if (dateInputRef.current) {
-        try {
-          // Try to use showPicker() for modern browsers
-          if ('showPicker' in dateInputRef.current) {
-            (dateInputRef.current as any).showPicker();
-          } else {
-            // Fallback to focus() for older browsers
+      // Use setTimeout to ensure the state update completes first
+      setTimeout(() => {
+        if (dateInputRef.current) {
+          try {
+            // Try to use showPicker() for modern browsers
+            if ('showPicker' in dateInputRef.current) {
+              (dateInputRef.current as any).showPicker();
+            } else {
+              // Fallback: trigger click event to open picker
+              dateInputRef.current.click();
+            }
+          } catch (error) {
+            // Final fallback: focus and click
             dateInputRef.current.focus();
+            dateInputRef.current.click();
           }
-        } catch (error) {
-          // Fallback if showPicker() is not supported
-          dateInputRef.current.focus();
         }
-      }
+      }, 10);
     }
+  };
+
+  const handleHiddenDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value;
+    setFormData(prev => ({ ...prev, date: selectedDate }));
+    
+    // Update dateOption based on the selected date
+    const dateObj = new Date(selectedDate);
+    const newDateOption = getDateOption(dateObj);
+    setDateOption(newDateOption);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -385,9 +399,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               ref={dateInputRef}
               type="date"
               value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              onChange={handleHiddenDateInputChange}
               className="absolute w-0 h-0 opacity-0 pointer-events-none"
               tabIndex={-1}
+              style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
             />
           </div>
 
