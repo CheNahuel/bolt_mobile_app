@@ -171,18 +171,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           try {
             console.log('🚀 Attempting to trigger date picker...');
             
-            // Try modern showPicker API first
-            if ('showPicker' in dateInputRef.current && typeof (dateInputRef.current as any).showPicker === 'function') {
-              console.log('📱 Using modern showPicker API');
-              (dateInputRef.current as any).showPicker();
-            } else {
-              console.log('🖱️ Fallback: using focus and click');
-              // Fallback: focus and click
-              dateInputRef.current.focus();
-              console.log('🎯 Focus applied');
-              dateInputRef.current.click();
-              console.log('🖱️ Click applied');
-            }
+            // Use focus and click method to avoid cross-origin iframe issues
+            console.log('🖱️ Using focus and click method');
+            dateInputRef.current.focus();
+            console.log('🎯 Focus applied');
+            dateInputRef.current.click();
+            console.log('🖱️ Click applied');
             console.log('✅ Date picker trigger completed successfully');
           } catch (error) {
             console.error('❌ Date picker trigger failed:', error);
@@ -489,32 +483,28 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                   if (dateInputRef.current) {
                     console.log('🧪 Attempting direct showPicker call...');
                     try {
-                      if ('showPicker' in dateInputRef.current) {
-                        (dateInputRef.current as any).showPicker();
-                        console.log('🧪 showPicker called successfully');
-                      } else {
-                        console.log('🧪 showPicker not available, trying click...');
-                        dateInputRef.current.style.position = 'fixed';
-                        dateInputRef.current.style.top = '50%';
-                        dateInputRef.current.style.left = '50%';
-                        dateInputRef.current.style.opacity = '0.1';
-                        dateInputRef.current.style.pointerEvents = 'auto';
-                        dateInputRef.current.style.zIndex = '10000';
-                        dateInputRef.current.click();
-                        setTimeout(() => {
-                          if (dateInputRef.current) {
-                            dateInputRef.current.style.cssText = `
-                              position: absolute; 
-                              left: -9999px; 
-                              width: 1px; 
-                              height: 1px;
-                              opacity: 0;
-                              pointer-events: none;
-                              visibility: hidden;
-                            `;
-                          }
-                        }, 1000);
-                      }
+                      console.log('🧪 Using focus and click method...');
+                      dateInputRef.current.style.position = 'fixed';
+                      dateInputRef.current.style.top = '50%';
+                      dateInputRef.current.style.left = '50%';
+                      dateInputRef.current.style.opacity = '0.1';
+                      dateInputRef.current.style.pointerEvents = 'auto';
+                      dateInputRef.current.style.zIndex = '10000';
+                      dateInputRef.current.focus();
+                      dateInputRef.current.click();
+                      setTimeout(() => {
+                        if (dateInputRef.current) {
+                          dateInputRef.current.style.cssText = `
+                            position: absolute; 
+                            left: -9999px; 
+                            width: 1px; 
+                            height: 1px;
+                            opacity: 0;
+                            pointer-events: none;
+                            visibility: hidden;
+                          `;
+                        }
+                      }, 1000);
                     } catch (error) {
                       console.error('🧪 DEBUG test failed:', error);
                     }
