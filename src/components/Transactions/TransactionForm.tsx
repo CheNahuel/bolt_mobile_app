@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Minus, Plus } from 'lucide-react';
+import { X, Minus, Plus, Calendar } from 'lucide-react';
 import Calculator from '../Calculator/Calculator';
 import { Transaction, Category, Account } from '../../types';
 import { generateId, formatDateInput, parseAmount } from '../../utils/helpers';
@@ -14,6 +14,8 @@ interface TransactionFormProps {
   onCancel: () => void;
 }
 
+type DateOption = 'today' | 'yesterday' | 'other';
+
 const TransactionForm: React.FC<TransactionFormProps> = ({
   account,
   categories,
@@ -26,14 +28,52 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     transaction ? 'details' : 'category'
   );
   
+  // Helper functions for date handling
+  const isToday = (date: Date): boolean => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const isYesterday = (date: Date): boolean => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return date.toDateString() === yesterday.toDateString();
+  };
+
+  const getDateOption = (date: Date): DateOption => {
+    if (isToday(date)) return 'today';
+    if (isYesterday(date)) return 'yesterday';
+    return 'other';
+  };
+
+  const getDateFromOption = (option: DateOption): string => {
+    const today = new Date();
+    switch (option) {
+      case 'today':
+        return formatDateInput(today);
+      case 'yesterday':
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        return formatDateInput(yesterday);
+      case 'other':
+        return formData.date; // Keep current date for 'other'
+      default:
+        return formatDateInput(today);
+    }
+  };
+
+  const initialDate = transaction ? transaction.date : new Date();
+  const initialDateOption = getDateOption(initialDate);
+  
   const [formData, setFormData] = useState({
     type: transaction?.type || initialType || 'expense' as 'expense' | 'income',
     amount: transaction ? formatAmountInput(transaction.amount.toString()) : '',
     category: transaction?.category || '',
     description: transaction?.description || '',
-    date: transaction ? formatDateInput(transaction.date) : formatDateInput(new Date()),
+    date: formatDateInput(initialDate),
   });
 
+  const [dateOption, setDateOption] = useState<DateOption>(initialDateOption);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCalculator, setShowCalculator] = useState(false);
 
@@ -59,6 +99,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       setFormData(prev => ({ ...prev, category: category.name }));
       setStep('details');
     }
+  };
+
+  const handleDateOptionChange = (option: DateOption) => {
+    setDateOption(option);
+    const newDate = getDateFromOption(option);
+    setFormData(prev => ({ ...prev, date: newDate }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -215,7 +261,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 formData.type === 'expense' ? 'bg-red-500' : 'bg-green-500'
               }`} />
               <span 
-                className="text-sm font-medium truncate content-boundary" 
+                className="text-sm font-medium truncate" 
                 title={`${formData.type === 'expense' ? 'Expense' : 'Income'} • ${formData.category}`}
               >
                 {formData.type === 'expense' ? 'Expense' : 'Income'} • {formData.category}
@@ -226,7 +272,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               onClick={() => setStep('category')}
               className="btn btn-outline btn-sm flex-shrink-0"
             >
-              <span className="text-field">Change</span>
+              <span>Change</span>
             </button>
           </div>
 
@@ -262,7 +308,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                   setFormData(prev => ({ ...prev, amount: formatted }));
                 }
               }}
-              className={`form-input w-full text-lg amount ${errors.amount ? 'border-error' : ''}`}
+              className={`form-input w-full text-lg ${errors.amount ? 'border-error' : ''}`}
               placeholder="0,00"
               inputMode="decimal"
               aria-describedby={errors.amount ? 'amount-error' : undefined}
@@ -276,12 +322,54 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             <label className="form-label">
               Date
             </label>
-            <input
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="form-input w-full date"
-            />
+            
+            {/* Date Option Buttons */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => handleDateOptionChange('today')}
+                className={`btn ${
+                  dateOption === 'today' 
+                    ? 'btn-primary' 
+                    : 'btn-outline'
+                }`}
+              >
+                Today
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDateOptionChange('yesterday')}
+                className={`btn ${
+                  dateOption === 'yesterday' 
+                    ? 'btn-primary' 
+                    : 'btn-outline'
+                }`}
+              >
+                Yesterday
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDateOptionChange('other')}
+                className={`btn ${
+                  dateOption === 'other' 
+                    ? 'btn-primary' 
+                    : 'btn-outline'
+                }`}
+              >
+                <Calendar size={16} />
+                Other
+              </button>
+            </div>
+
+            {/* Date Picker - Only show when "Other" is selected */}
+            {dateOption === 'other' && (
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="form-input w-full"
+              />
+            )}
           </div>
 
           <div className="form-group">
@@ -292,7 +380,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               type="text"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="form-input w-full content-boundary"
+              className="form-input w-full"
               placeholder="Add a note..."
             />
           </div>
@@ -303,13 +391,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               onClick={onCancel}
               className="btn btn-outline flex-1"
             >
-              <span className="text-field">Cancel</span>
+              <span>Cancel</span>
             </button>
             <button
               type="submit"
               className="btn btn-primary flex-1"
             >
-              <span className="text-field">{transaction ? 'Update Transaction' : 'Save Transaction'}</span>
+              <span>{transaction ? 'Update Transaction' : 'Save Transaction'}</span>
             </button>
           </div>
         </form>
