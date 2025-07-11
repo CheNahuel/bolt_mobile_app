@@ -35,8 +35,8 @@ const AccountCard: React.FC<AccountCardProps> = ({
       aria-label={`View ${account.name} account details`}
     >
       {/* Account Header */}
-      <div className="flex items-center justify-between space-x-4 mb-4">
-        <div className="flex items-center space-x-3 min-w-0 flex-1">
+      <div className="flex items-center space-x-4 mb-4">
+        <div className="flex items-center space-x-3 min-w-0 flex-1 max-w-[50%]">
           <div className="text-2xl">{account.icon}</div>
           <div className="min-w-0 flex-1">
             <h3 className="heading-4 truncate" title={account.name}>
@@ -45,7 +45,7 @@ const AccountCard: React.FC<AccountCardProps> = ({
             <p className="text-sm text-secondary truncate">{account.currency}</p>
           </div>
         </div>
-        <div className="text-right flex-shrink-0">
+        <div className="text-right flex-1 max-w-[50%]">
           <p className={`text-lg font-semibold ${
             new Decimal(monthlyBalance).gte(0) ? 'text-success' : 'text-error'
           }`}>

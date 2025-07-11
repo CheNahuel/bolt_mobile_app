@@ -97,7 +97,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   <div className="text-2xl flex-shrink-0">
                     {getCategoryIcon(transaction.category, transaction.type)}
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 max-w-[50%]">
                     <h4 
                       className="text-base font-medium truncate" 
                       title={transaction.description || transaction.category}
@@ -109,8 +109,8 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     </p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0 flex items-center space-x-2">
-                  <div>
+                <div className="flex items-center space-x-2 flex-1 justify-end max-w-[50%]">
+                  <div className="text-right min-w-0 flex-1">
                     <p className={`text-lg font-semibold text-right ${
                       transaction.type === 'income' ? 'text-success' : 'text-error'
                     }`}>
@@ -121,7 +121,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       {transaction.category}
                     </p>
                   </div>
-                  <button
+                  <button className="flex-shrink-0"
                     onClick={(e) => handleDeleteClick(e, transaction.id)}
                     className="btn btn-ghost btn-sm text-error hover:bg-red-50 p-2"
                     aria-label={`Delete ${transaction.description || transaction.category} transaction`}

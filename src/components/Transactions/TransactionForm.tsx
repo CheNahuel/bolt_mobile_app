@@ -304,48 +304,63 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </button>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">
-              Amount
-            </label>
-            <input
-              type="text"
-              value={formData.amount}
-              onFocus={() => setShowCalculator(true)}
-              onChange={(e) => {
-                const value = e.target.value;
-                
-                // Filter input to allow only numbers, comma, and single decimal separator
-                const filteredValue = value
-                  .replace(/[^0-9,]/g, '') // Remove all non-numeric characters except comma
-                  .replace(/(,.*?),/g, '$1') // Allow only one comma
-                  .replace(/^(\d*,\d{2}).*/, '$1'); // Limit to 2 decimal places
-                
-                setFormData({ ...formData, amount: filteredValue });
-                
-                // Clear error when user starts typing
-                if (errors.amount) {
-                  setErrors(prev => ({ ...prev, amount: '' }));
-                }
-              }}
-              onBlur={(e) => {
-                // Format the input on blur if valid
-                const validation = validateAmountInput(e.target.value.replace(',', '.'));
-                if (validation.isValid && e.target.value.trim()) {
-                  const formatted = formatAmountInput(e.target.value);
-                  setFormData(prev => ({ ...prev, amount: formatted }));
-                }
-              }}
-              className={`form-input w-full text-lg ${errors.amount ? 'border-error' : ''}`}
-              placeholder="0,00"
-              inputMode="decimal"
-              aria-describedby={errors.amount ? 'amount-error' : undefined}
-            />
-            {errors.amount && (
-              <p id="amount-error" className="form-error">{errors.amount}</p>
-            )}
-          </div>
+          {/* Amount and Description in 50/50 layout */}
+          <div className="grid grid-cols-2 gap-x-4">
+            <div className="form-group">
+              <label className="form-label">
+                Amount
+              </label>
+              <input
+                type="text"
+                value={formData.amount}
+                onFocus={() => setShowCalculator(true)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  
+                  // Filter input to allow only numbers, comma, and single decimal separator
+                  const filteredValue = value
+                    .replace(/[^0-9,]/g, '') // Remove all non-numeric characters except comma
+                    .replace(/(,.*?),/g, '$1') // Allow only one comma
+                    .replace(/^(\d*,\d{2}).*/, '$1'); // Limit to 2 decimal places
+                  
+                  setFormData({ ...formData, amount: filteredValue });
+                  
+                  // Clear error when user starts typing
+                  if (errors.amount) {
+                    setErrors(prev => ({ ...prev, amount: '' }));
+                  }
+                }}
+                onBlur={(e) => {
+                  // Format the input on blur if valid
+                  const validation = validateAmountInput(e.target.value.replace(',', '.'));
+                  if (validation.isValid && e.target.value.trim()) {
+                    const formatted = formatAmountInput(e.target.value);
+                    setFormData(prev => ({ ...prev, amount: formatted }));
+                  }
+                }}
+                className={`form-input w-full text-lg ${errors.amount ? 'border-error' : ''}`}
+                placeholder="0,00"
+                inputMode="decimal"
+                aria-describedby={errors.amount ? 'amount-error' : undefined}
+              />
+              {errors.amount && (
+                <p id="amount-error" className="form-error">{errors.amount}</p>
+              )}
+            </div>
 
+            <div className="form-group">
+              <label className="form-label">
+                Description (optional)
+              </label>
+              <input
+                type="text"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="form-input w-full"
+                placeholder="Add a note..."
+              />
+            </div>
+          </div>
           <div className="form-group">
             <label className="form-label">
               Date
@@ -387,19 +402,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 Other
               </button>
             </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">
-              Description (optional)
-            </label>
-            <input
-              type="text"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="form-input w-full"
-              placeholder="Add a note..."
-            />
           </div>
 
           <div className="flex space-x-3 pt-4">
