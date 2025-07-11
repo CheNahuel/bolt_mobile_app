@@ -354,7 +354,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleDateOptionChange('today')}
-                className={`btn ${
+                className={`btn btn-sm ${
                   dateOption === 'today' 
                     ? 'btn-primary' 
                     : 'btn-outline'
@@ -365,7 +365,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleDateOptionChange('yesterday')}
-                className={`btn ${
+                className={`btn btn-sm ${
                   dateOption === 'yesterday' 
                     ? 'btn-primary' 
                     : 'btn-outline'
@@ -376,7 +376,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleDateOptionChange('other')}
-                className={`btn ${
+                className={`btn btn-sm ${
                   dateOption === 'other' 
                     ? 'btn-primary' 
                     : 'btn-outline'
