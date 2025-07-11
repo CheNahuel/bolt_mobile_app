@@ -1,5 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import Decimal from 'decimal.js';
 import { Account, Transaction, Category } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import Header from '../Layout/Header';
@@ -21,45 +22,58 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
       if (!acc[key]) {
         acc[key] = {
           name: transaction.category,
-          value: 0,
+          value: new Decimal('0'),
           color: category?.color || '#6b7280',
           icon: category?.icon || '💸',
         };
       }
-      acc[key].value += transaction.amount;
+      acc[key].value = acc[key].value.plus(new Decimal(transaction.amount));
       return acc;
     }, {} as Record<string, any>);
 
-  const expenseData = Object.values(expensesByCategory);
+  const expenseData = Object.values(expensesByCategory).map(item => ({
+    ...item,
+    value: item.value.toNumber() // Convert back to number for chart display
+  }));
 
   // Calculate monthly trends
   const monthlyData = transactions.reduce((acc, transaction) => {
     const month = transaction.date.toISOString().slice(0, 7); // YYYY-MM
     
     if (!acc[month]) {
-      acc[month] = { month, expenses: 0, income: 0 };
+      acc[month] = { 
+        month, 
+        expenses: new Decimal('0'), 
+        income: new Decimal('0') 
+      };
     }
     
+    const amount = new Decimal(transaction.amount);
     if (transaction.type === 'expense') {
-      acc[month].expenses += transaction.amount;
+      acc[month].expenses = acc[month].expenses.plus(amount);
     } else if (transaction.type === 'income') {
-      acc[month].income += transaction.amount;
+      acc[month].income = acc[month].income.plus(amount);
     }
     
     return acc;
   }, {} as Record<string, any>);
 
   const monthlyTrends = Object.values(monthlyData)
+    .map((item: any) => ({
+      ...item,
+      expenses: item.expenses.toNumber(),
+      income: item.income.toNumber()
+    }))
     .sort((a: any, b: any) => a.month.localeCompare(b.month))
     .slice(-6); // Last 6 months
 
   const totalExpenses = transactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0'));
 
   const totalIncome = transactions
     .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0'));
 
   if (transactions.length === 0) {
     return (
@@ -89,13 +103,13 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
               <div className="card">
                 <h3 className="text-sm text-secondary mb-1">Total Income</h3>
                 <p className="text-xl font-bold text-success text-right">
-                  {formatCurrency(totalIncome, 'USD')}
+                  {formatCurrency(totalIncome.toString(), 'USD')}
                 </p>
               </div>
               <div className="card">
                 <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
                 <p className="text-xl font-bold text-error text-right">
-                  {formatCurrency(totalExpenses, 'USD')}
+                  {formatCurrency(totalExpenses.toString(), 'USD')}
                 </p>
               </div>
             </div>
@@ -121,7 +135,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     </Pie>
                     <Tooltip
                       formatter={(value: number) => [
-                        formatCurrency(value, 'USD')
+                        formatCurrency(value.toString(), 'USD')
                       ]}
                     />
                   </PieChart>
@@ -164,7 +178,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip
                         formatter={(value: number, name: string) => [
-                          formatCurrency(value, 'USD'),
+                          formatCurrency(value.toString(), 'USD'),
                           new Date(name + '-01').toLocaleDateString('en-US', { 
                             month: 'long', 
                             year: 'numeric' 

@@ -1,12 +1,13 @@
 import React from 'react';
+import Decimal from 'decimal.js';
 import { Account, Transaction } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 
 interface AccountCardProps {
   account: Account;
-  monthlyIncome: number;
-  monthlyExpenses: number;
-  monthlyBalance: number;
+  monthlyIncome: string;
+  monthlyExpenses: string;
+  monthlyBalance: string;
   transactionCount: number;
   onClick: () => void;
 }
@@ -46,9 +47,9 @@ const AccountCard: React.FC<AccountCardProps> = ({
         </div>
         <div className="text-right flex-shrink-0">
           <p className={`text-lg font-semibold ${
-            monthlyBalance >= 0 ? 'text-success' : 'text-error'
+            new Decimal(monthlyBalance).gte(0) ? 'text-success' : 'text-error'
           }`}>
-            {monthlyBalance >= 0 ? '+' : ''}
+            {new Decimal(monthlyBalance).gte(0) ? '+' : ''}
             {formatCurrency(monthlyBalance, account.currency)}
           </p>
           <p className="text-xs text-muted">

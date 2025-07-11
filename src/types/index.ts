@@ -3,7 +3,7 @@ export interface Account {
   name: string;
   currency: string;
   icon: string;
-  balance: number;
+  balance: string;
   createdAt: Date;
 }
 
@@ -11,7 +11,7 @@ export interface Transaction {
   id: string;
   accountId: string;
   type: 'expense' | 'income' | 'transfer';
-  amount: number;
+  amount: string;
   category: string;
   description?: string;
   date: Date;

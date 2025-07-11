@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import Decimal from 'decimal.js';
 import { Transaction, Category, Account } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import Header from '../Layout/Header';
@@ -29,15 +30,17 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
 
   const accountTransactions = transactions.filter(t => t.accountId === account.id);
   const balance = accountTransactions.reduce((sum, transaction) => {
+    const amount = new Decimal(transaction.amount);
     if (transaction.type === 'income') return sum + transaction.amount;
-    if (transaction.type === 'expense') return sum - transaction.amount;
+    if (transaction.type === 'income') return sum.plus(amount);
+    if (transaction.type === 'expense') return sum.minus(amount);
     if (transaction.type === 'transfer') {
       return transaction.transferToAccountId === account.id
-        ? sum + transaction.amount
-        : sum - transaction.amount;
+        ? sum.plus(amount)
+        : sum.minus(amount);
     }
     return sum;
-  }, 0);
+  }, new Decimal('0'));
 
   const handleAddExpense = () => {
     setEditingTransaction(undefined);
@@ -82,9 +85,9 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
           <div className="card text-center">
             <div className="text-4xl mb-2">{account.icon}</div>
             <p className={`heading-2 min-w-0 truncate ${
-              balance >= 0 ? 'text-success' : 'text-error'
+              balance.gte(0) ? 'text-success' : 'text-error'
             }`}>
-              {formatCurrency(balance, account.currency)}
+              {formatCurrency(balance.toString(), account.currency)}
             </p>
             <p className="text-sm text-muted mt-1 truncate">
               {accountTransactions.length} transactions

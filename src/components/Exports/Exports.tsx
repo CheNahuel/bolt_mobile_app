@@ -1,5 +1,6 @@
 import React from 'react';
 import { Download, FileText, Share } from 'lucide-react';
+import Decimal from 'decimal.js';
 import { Account, Transaction } from '../../types';
 import { formatCurrency } from '../../utils/currency';
 import { formatDate } from '../../utils/helpers';
@@ -58,19 +59,20 @@ SUMMARY
 =======
 Total Accounts: ${accounts.length}
 Total Transactions: ${transactions.length}
-Total Income: $${totalIncome.toLocaleString()}
-Total Expenses: $${totalExpenses.toLocaleString()}
-Net Balance: $${(totalIncome - totalExpenses).toLocaleString()}
+Total Income: $${totalIncome.toNumber().toLocaleString()}
+Total Expenses: $${totalExpenses.toNumber().toLocaleString()}
+Net Balance: $${totalIncome.minus(totalExpenses).toNumber().toLocaleString()}
 
 ACCOUNTS
 ========
 ${accounts.map(account => {
   const accountTransactions = transactions.filter(t => t.accountId === account.id);
   const balance = accountTransactions.reduce((sum, t) => {
-    return t.type === 'income' ? sum + t.amount : sum - t.amount;
-  }, 0);
+    const amount = new Decimal(t.amount);
+    return t.type === 'income' ? sum.plus(amount) : sum.minus(amount);
+  }, new Decimal('0'));
   
-  return `${account.name}: ${formatCurrency(balance, account.currency)}`;
+  return `${account.name}: ${formatCurrency(balance.toString(), account.currency)}`;
 }).join('\n')}
 
 RECENT TRANSACTIONS
@@ -80,7 +82,7 @@ ${transactions
   .slice(0, 20)
   .map(t => {
     const account = accounts.find(a => a.id === t.accountId);
-    return `${formatDate(t.date)} | ${account?.name} | ${t.type.toUpperCase()} | ${t.category} | $${t.amount}`;
+    return `${formatDate(t.date)} | ${account?.name} | ${t.type.toUpperCase()} | ${t.category} | $${new Decimal(t.amount).toNumber()}`;
   }).join('\n')}
     `.trim();
 
@@ -99,8 +101,8 @@ ${transactions
     const summary = `My Expense Tracker Summary:
 • ${accounts.length} accounts
 • ${transactions.length} transactions
-• Total Income: $${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}
-• Total Expenses: $${transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}`;
+• Total Income: $${transactions.filter(t => t.type === 'income').reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0')).toNumber().toLocaleString()}
+• Total Expenses: $${transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0')).toNumber().toLocaleString()}`;
 
     if (navigator.share) {
       try {
@@ -124,11 +126,11 @@ ${transactions
 
   const totalExpenses = transactions
     .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0'));
 
   const totalIncome = transactions
     .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0'));
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
@@ -152,13 +154,13 @@ ${transactions
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Income</span>
                   <span className="font-medium text-green-600 text-right">
-                    {formatCurrency(totalIncome, 'USD')}
+                    {formatCurrency(totalIncome.toString(), 'USD')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Total Expenses</span>
                   <span className="font-medium text-red-600 text-right">
-                    {formatCurrency(totalExpenses, 'USD')}
+                    {formatCurrency(totalExpenses.toString(), 'USD')}
                   </span>
                 </div>
               </div>
@@ -166,9 +168,9 @@ ${transactions
                 <div className="flex justify-between">
                   <span className="font-medium">Net Balance</span>
                   <span className={`font-bold ${
-                    totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'
+                    totalIncome.minus(totalExpenses).gte(0) ? 'text-green-600' : 'text-red-600'
                   } text-right`}>
-                    {formatCurrency(totalIncome - totalExpenses, 'USD')}
+                    {formatCurrency(totalIncome.minus(totalExpenses).toString(), 'USD')}
                   </span>
                 </div>
               </div>

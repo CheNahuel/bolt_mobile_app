@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Plus, ChevronDown } from 'lucide-react';
+import Decimal from 'decimal.js';
 import { Account, Transaction } from '../../types';
 import AccountCard from './AccountCard';
 
@@ -82,19 +83,19 @@ const AccountsList: React.FC<AccountsListProps> = ({
       // Calculate monthly income, expenses, and balance
       const monthlyIncome = filteredTransactions
         .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0);
+        .reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0'));
       
       const monthlyExpenses = filteredTransactions
         .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0);
+        .reduce((sum, t) => sum.plus(new Decimal(t.amount)), new Decimal('0'));
       
-      const monthlyBalance = monthlyIncome - monthlyExpenses;
+      const monthlyBalance = monthlyIncome.minus(monthlyExpenses);
       
       return {
         account,
-        monthlyIncome,
-        monthlyExpenses,
-        monthlyBalance,
+        monthlyIncome: monthlyIncome.toString(),
+        monthlyExpenses: monthlyExpenses.toString(),
+        monthlyBalance: monthlyBalance.toString(),
         transactionCount: filteredTransactions.length
       };
     });

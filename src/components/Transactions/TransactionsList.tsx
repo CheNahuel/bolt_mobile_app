@@ -115,7 +115,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                       transaction.type === 'income' ? 'text-success' : 'text-error'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}
-                      {formatCurrency(transaction.amount, currency)}
+                      {formatCurrency(transaction.amount.toString(), currency)}
                     </p>
                     <p className="text-xs text-muted truncate text-right" title={transaction.category}>
                       {transaction.category}

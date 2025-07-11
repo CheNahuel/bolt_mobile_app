@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Delete } from 'lucide-react';
+import Decimal from 'decimal.js';
+
+// Configure Decimal.js for financial calculations
+Decimal.set({
+  precision: 20,
+  rounding: Decimal.ROUND_HALF_UP,
+  toExpNeg: -7,
+  toExpPos: 21,
+  minE: -9e15,
+  maxE: 9e15
+});
 
 interface CalculatorProps {
   isOpen: boolean;
@@ -64,17 +75,23 @@ const Calculator: React.FC<CalculatorProps> = ({
   };
 
   // Format number for display (use comma as decimal separator, exactly 2 decimals)
-  const formatNumberForDisplay = (num: number): string => {
-    // Round to 2 decimal places
-    const rounded = Math.round((num + Number.EPSILON) * 100) / 100;
-    
-    // Format with exactly 2 decimal places and replace dot with comma
-    return rounded.toFixed(2).replace('.', ',');
+  const formatNumberForDisplay = (value: string | Decimal): string => {
+    try {
+      const decimal = value instanceof Decimal ? value : new Decimal(value);
+      // Format with exactly 2 decimal places and replace dot with comma
+      return decimal.toFixed(2).replace('.', ',');
+    } catch (error) {
+      return '0,00';
+    }
   };
 
   // Parse display string to number (handle comma as decimal separator)
-  const parseDisplayNumber = (displayStr: string): number => {
-    return parseFloat(displayStr.replace(',', '.'));
+  const parseDisplayNumber = (displayStr: string): Decimal => {
+    try {
+      return new Decimal(displayStr.replace(',', '.'));
+    } catch (error) {
+      return new Decimal('0');
+    }
   };
 
   // Handle keyboard events
@@ -183,15 +200,14 @@ const Calculator: React.FC<CalculatorProps> = ({
         // Chain operations - calculate current result first
         const result = calculateResult();
         if (result !== null) {
-          const resultStr = result.toString();
           const displayStr = formatNumberForDisplay(result);
-          setPreviousNumber(resultStr);
+          setPreviousNumber(result.toString());
           setCurrentNumber('');
           setOperation(newOp);
           setInputState('operator');
           setHasDecimal(false);
           setDisplay(displayStr);
-          setLastResult(result);
+          setLastResult(result.toNumber());
         }
       } else {
         // First operation
@@ -229,54 +245,53 @@ const Calculator: React.FC<CalculatorProps> = ({
         setOperation(null);
         setInputState('result');
         setHasDecimal(formattedResult.includes(','));
-        setLastResult(result);
+        setLastResult(result.toNumber());
         setShouldReplaceDisplay(true); // Next number input should replace result
       }
     }
   };
 
-  const calculateResult = (): number | null => {
-    const prev = parseFloat(previousNumber);
-    const current = parseFloat(currentNumber);
+  const calculateResult = (): Decimal | null => {
+    try {
+      const prev = new Decimal(previousNumber);
+      const current = new Decimal(currentNumber);
     
-    if (isNaN(prev) || isNaN(current)) {
-      setError('Invalid number format');
-      return null;
-    }
+      let result: Decimal;
 
-    let result: number;
-
-    switch (operation) {
-      case '+':
-        result = prev + current;
-        break;
-      case '-':
-        result = prev - current;
-        break;
-      case '×':
-        result = prev * current;
-        break;
-      case '÷':
-        if (current === 0) {
-          setError('Cannot divide by zero');
+      switch (operation) {
+        case '+':
+          result = prev.plus(current);
+          break;
+        case '-':
+          result = prev.minus(current);
+          break;
+        case '×':
+          result = prev.times(current);
+          break;
+        case '÷':
+          if (current.equals(0)) {
+            setError('Cannot divide by zero');
+            return null;
+          }
+          result = prev.dividedBy(current);
+          break;
+        default:
+          setError('Invalid operation');
           return null;
-        }
-        result = prev / current;
-        break;
-      default:
-        setError('Invalid operation');
+      }
+      // Round to 2 decimal places for display
+      result = result.toDecimalPlaces(2, Decimal.ROUND_HALF_UP);
+
+      if (!result.isFinite()) {
+        setError('Result is too large');
         return null;
-    }
+      }
 
-    // Handle decimal precision properly and round to 2 decimal places
-    result = Math.round((result + Number.EPSILON) * 100) / 100;
-
-    if (!isFinite(result)) {
-      setError('Result is too large');
+      return result;
+    } catch (error) {
+      setError('Calculation error');
       return null;
     }
-
-    return result;
   };
 
   const clearAll = () => {
@@ -299,7 +314,7 @@ const Calculator: React.FC<CalculatorProps> = ({
     if (inputState === 'operator') {
       // If we just entered an operator, go back to the previous number
       if (previousNumber !== '') {
-        const prevNum = parseFloat(previousNumber);
+        const prevNum = new Decimal(previousNumber);
         const displayStr = formatNumberForDisplay(prevNum);
         setDisplay(displayStr);
         setCurrentNumber(previousNumber);
@@ -359,9 +374,9 @@ const Calculator: React.FC<CalculatorProps> = ({
     // Handle ongoing calculation
     if (inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '') {
       const result = calculateResult();
-      if (result !== null && result >= 0.01) {
+      if (result !== null && result.gte('0.01')) {
         valueToValidate = formatNumberForDisplay(result);
-        numericValue = result;
+        numericValue = result.toNumber();
       } else {
         return false;
       }
@@ -369,11 +384,15 @@ const Calculator: React.FC<CalculatorProps> = ({
       valueToValidate = formatNumberForDisplay(lastResult);
       numericValue = lastResult;
     } else if (inputState === 'number' && currentNumber !== '') {
-      const num = parseFloat(currentNumber);
-      if (!isNaN(num) && num >= 0.01) {
-        valueToValidate = formatNumberForDisplay(num);
-        numericValue = num;
-      } else {
+      try {
+        const decimal = new Decimal(currentNumber);
+        if (decimal.gte('0.01')) {
+          valueToValidate = formatNumberForDisplay(decimal);
+          numericValue = decimal.toNumber();
+        } else {
+          return false;
+        }
+      } catch (error) {
         return false;
       }
     } else {
@@ -394,12 +413,12 @@ const Calculator: React.FC<CalculatorProps> = ({
     // Handle ongoing calculation: if there's an operation in progress, calculate first
     if (inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '') {
       const result = calculateResult();
-      if (result !== null && result >= 0.01) {
+      if (result !== null && result.gte('0.01')) {
         valueToReturn = formatNumberForDisplay(result);
         onResult(valueToReturn);
         onClose();
         return;
-      } else if (result !== null && result < 0.01) {
+      } else if (result !== null && result.lt('0.01')) {
         // Result is too small, don't save
         setError('Result must be at least 0,01');
         return;
@@ -412,13 +431,16 @@ const Calculator: React.FC<CalculatorProps> = ({
       valueToReturn = formatNumberForDisplay(lastResult);
     } else if (inputState === 'number' && currentNumber !== '') {
       // Return current number formatted
-      const num = parseFloat(currentNumber);
-      if (!isNaN(num) && num >= 0.01) {
-        valueToReturn = formatNumberForDisplay(num);
-      } else if (!isNaN(num) && num < 0.01) {
-        setError('Amount must be at least 0,01');
-        return;
-      } else {
+      try {
+        const decimal = new Decimal(currentNumber);
+        if (decimal.gte('0.01')) {
+          valueToReturn = formatNumberForDisplay(decimal);
+        } else {
+          setError('Amount must be at least 0,01');
+          return;
+        }
+      } catch (error) {
+        setError('Invalid amount');
         return;
       }
     } else {
@@ -492,7 +514,7 @@ const Calculator: React.FC<CalculatorProps> = ({
         {/* Display */}
         <div className="calculator-display">
           <div className="calculator-display-text">
-            {display}
+            {formatNumberForDisplay(previousNumber)} {operation}
           </div>
           {operation && previousNumber && inputState === 'operator' && (
             <div className="calculator-operation">

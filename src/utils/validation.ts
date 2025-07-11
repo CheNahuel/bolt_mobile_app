@@ -1,3 +1,5 @@
+import Decimal from 'decimal.js';
+
 export interface ValidationResult {
   isValid: boolean;
   errorMessage?: string;
@@ -71,16 +73,33 @@ export function validateAmountInput(input: string): ValidationResult {
   }
 
   // Convert to number for numerical validations
-  const numericValue = parseFloat(trimmedInput);
-  
-  // Check if conversion resulted in NaN
-  if (isNaN(numericValue)) {
+  let numericValue: Decimal;
+  try {
+    numericValue = new Decimal(trimmedInput);
+  } catch (error) {
     return {
       isValid: false,
       errorMessage: 'Invalid number format'
     };
   }
-  // Additional check for edge cases with decimal precision
+  
+  // Check if positive and greater than 0
+  if (numericValue.lte(0)) {
+    return {
+      isValid: false,
+      errorMessage: 'Amount must be greater than 0,00'
+    };
+  }
+  // Check maximum limit (999,999,999.99)
+  const MAX_AMOUNT = new Decimal('999999999.99');
+  if (numericValue.gt(MAX_AMOUNT)) {
+    return {
+      isValid: false,
+      errorMessage: 'Amount cannot exceed 999.999.999,99'
+    };
+  }
+
+  // Check for edge cases with decimal precision
   const decimalPart = trimmedInput.split('.')[1];
   if (decimalPart && decimalPart.length > 2) {
     return {
@@ -116,13 +135,17 @@ export function validateAmount(value: string): boolean {
  */
 export function formatAmountInput(input: string): string {
   const trimmed = input.trim().replace(',', '.');
-  const number = parseFloat(trimmed);
   
-  // Always format with exactly 2 decimal places and comma separator
-  const formatted = number.toFixed(2);
-  
-  // Replace dot with comma for display
-  return formatted.replace('.', ',');
+  try {
+    const decimal = new Decimal(trimmed);
+    // Always format with exactly 2 decimal places and comma separator
+    const formatted = decimal.toFixed(2);
+    
+    // Replace dot with comma for display
+    return formatted.replace('.', ',');
+  } catch (error) {
+    return '0,00';
+  }
 }
 
 /**
@@ -143,13 +166,17 @@ export function validateAmountRealTime(input: string): {
   
   // Add warnings for potential issues
   if (result.isValid) {
-    const numericValue = parseFloat(input.trim());
+    try {
+      const numericValue = new Decimal(input.trim().replace(',', '.'));
     
-    if (numericValue > 100000) {
-      return {
-        ...result,
-        warningMessage: 'Large amount - please verify'
-      };
+      if (numericValue.gt(100000)) {
+        return {
+          ...result,
+          warningMessage: 'Large amount - please verify'
+        };
+      }
+    } catch (error) {
+      // If parsing fails, just return the original result
     }
   }
 

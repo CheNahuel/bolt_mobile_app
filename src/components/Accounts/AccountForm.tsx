@@ -44,7 +44,7 @@ const AccountForm: React.FC<AccountFormProps> = ({
       name: formData.name.trim(),
       currency: formData.currency,
       icon: formData.icon,
-      balance: account?.balance || 0,
+      balance: account?.balance || '0.00',
       createdAt: account?.createdAt || new Date(),
     };
 
