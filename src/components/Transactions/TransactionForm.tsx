@@ -79,6 +79,31 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   const [showCalculator, setShowCalculator] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
+  // Browser detection for debugging
+  React.useEffect(() => {
+    console.log('🌐 Browser info:', {
+      userAgent: navigator.userAgent,
+      platform: navigator.platform,
+      vendor: navigator.vendor,
+      language: navigator.language,
+      cookieEnabled: navigator.cookieEnabled,
+      onLine: navigator.onLine
+    });
+    
+    // Check if showPicker is supported
+    const testInput = document.createElement('input');
+    testInput.type = 'date';
+    console.log('📱 showPicker support:', 'showPicker' in testInput);
+    console.log('📱 HTMLInputElement prototype has showPicker:', 'showPicker' in HTMLInputElement.prototype);
+    
+    // Check if we're in a secure context (required for some APIs)
+    console.log('🔒 Secure context:', window.isSecureContext);
+    
+    // Check if date input is supported
+    testInput.value = '2023-01-01';
+    console.log('📅 Date input support:', testInput.value === '2023-01-01');
+  }, []);
+
   // Initialize form data and step properly
   React.useEffect(() => {
     if (!transaction && initialType) {
@@ -104,18 +129,27 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   };
 
   const handleDateOptionChange = (option: DateOption) => {
+    console.log('🔍 handleDateOptionChange called with option:', option);
     setDateOption(option);
     
     // Only update the date for 'today' and 'yesterday', not for 'other'
     if (option !== 'other') {
       const newDate = getDateFromOption(option);
+      console.log('📅 Setting date for', option, ':', newDate);
       setFormData(prev => ({ ...prev, date: newDate }));
     }
     
     // If "Other" is selected, programmatically open the date picker
     if (option === 'other') {
+      console.log('🎯 "Other" selected - attempting to trigger date picker');
+      console.log('📍 dateInputRef.current exists:', !!dateInputRef.current);
+      
       setTimeout(() => {
         if (dateInputRef.current) {
+          console.log('✅ dateInputRef.current is available in setTimeout');
+          console.log('🔧 Current input element:', dateInputRef.current);
+          console.log('🎨 Original style:', dateInputRef.current.style.cssText);
+          
           // Store original styles
           const originalStyle = dateInputRef.current.style.cssText;
           
@@ -132,37 +166,59 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             height: 1px !important;
           `;
           
+          console.log('🎨 Applied temporary style:', dateInputRef.current.style.cssText);
+          
           try {
+            console.log('🚀 Attempting to trigger date picker...');
+            
             // Try modern showPicker API first
             if ('showPicker' in dateInputRef.current && typeof (dateInputRef.current as any).showPicker === 'function') {
+              console.log('📱 Using modern showPicker API');
               (dateInputRef.current as any).showPicker();
             } else {
+              console.log('🖱️ Fallback: using focus and click');
               // Fallback: focus and click
               dateInputRef.current.focus();
+              console.log('🎯 Focus applied');
               dateInputRef.current.click();
+              console.log('🖱️ Click applied');
             }
+            console.log('✅ Date picker trigger completed successfully');
           } catch (error) {
-            console.log('Date picker trigger failed:', error);
+            console.error('❌ Date picker trigger failed:', error);
+            console.error('Error details:', {
+              name: error.name,
+              message: error.message,
+              stack: error.stack
+            });
           }
           
           // Restore original styling after a brief delay
           setTimeout(() => {
             if (dateInputRef.current) {
+              console.log('🔄 Restoring original styles');
               dateInputRef.current.style.cssText = originalStyle;
+              console.log('✅ Original styles restored');
             }
           }, 100);
+        } else {
+          console.error('❌ dateInputRef.current is null in setTimeout');
         }
       }, 10);
+    } else {
+      console.log('ℹ️ Option is not "other", skipping date picker trigger');
     }
   };
 
   const handleHiddenDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('📅 Hidden date input changed:', e.target.value);
     const selectedDate = e.target.value;
     setFormData(prev => ({ ...prev, date: selectedDate }));
     
     // Update dateOption based on the selected date
     const dateObj = new Date(selectedDate);
     const newDateOption = getDateOption(dateObj);
+    console.log('🔄 Updating dateOption to:', newDateOption);
     setDateOption(newDateOption);
   };
 
@@ -421,11 +477,62 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </div>
 
             {/* Hidden Date Picker - Always present but visually hidden */}
+            
+            {/* DEBUG: Test button - remove this after debugging */}
+            <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded">
+              <p className="text-xs text-yellow-800 mb-2">DEBUG MODE - Remove after fixing</p>
+              <button
+                type="button"
+                onClick={() => {
+                  console.log('🧪 DEBUG: Test button clicked');
+                  console.log('🧪 dateInputRef.current:', dateInputRef.current);
+                  if (dateInputRef.current) {
+                    console.log('🧪 Attempting direct showPicker call...');
+                    try {
+                      if ('showPicker' in dateInputRef.current) {
+                        (dateInputRef.current as any).showPicker();
+                        console.log('🧪 showPicker called successfully');
+                      } else {
+                        console.log('🧪 showPicker not available, trying click...');
+                        dateInputRef.current.style.position = 'fixed';
+                        dateInputRef.current.style.top = '50%';
+                        dateInputRef.current.style.left = '50%';
+                        dateInputRef.current.style.opacity = '0.1';
+                        dateInputRef.current.style.pointerEvents = 'auto';
+                        dateInputRef.current.style.zIndex = '10000';
+                        dateInputRef.current.click();
+                        setTimeout(() => {
+                          if (dateInputRef.current) {
+                            dateInputRef.current.style.cssText = `
+                              position: absolute; 
+                              left: -9999px; 
+                              width: 1px; 
+                              height: 1px;
+                              opacity: 0;
+                              pointer-events: none;
+                              visibility: hidden;
+                            `;
+                          }
+                        }, 1000);
+                      }
+                    } catch (error) {
+                      console.error('🧪 DEBUG test failed:', error);
+                    }
+                  }
+                }}
+                className="btn btn-sm bg-yellow-200 text-yellow-800 border-yellow-400"
+              >
+                🧪 Test Date Picker
+              </button>
+            </div>
+            
             <input
               ref={dateInputRef}
               type="date"
               value={formData.date}
               onChange={handleHiddenDateInputChange}
+              onFocus={() => console.log('📅 Hidden date input focused')}
+              onClick={() => console.log('🖱️ Hidden date input clicked')}
               tabIndex={-1}
               style={{ 
                 position: 'absolute', 
