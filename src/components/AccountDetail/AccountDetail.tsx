@@ -81,7 +81,7 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
         <div className="p-4">
           <div className="card text-center">
             <div className="text-4xl mb-2">{account.icon}</div>
-            <p className={`heading-1 text-center ${
+            <p className={`heading-2 min-w-0 truncate ${
               balance >= 0 ? 'text-success' : 'text-error'
             }`}>
               {formatCurrency(balance, account.currency)}

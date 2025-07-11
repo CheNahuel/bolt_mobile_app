@@ -80,15 +80,6 @@ export function validateAmountInput(input: string): ValidationResult {
       errorMessage: 'Invalid number format'
     };
   }
-
-  // Check if positive and greater than 0
-  if (numericValue <= 0) {
-    return {
-      isValid: false,
-      errorMessage: 'Amount must be greater than 0,00'
-    };
-  }
-
   // Additional check for edge cases with decimal precision
   const decimalPart = trimmedInput.split('.')[1];
   if (decimalPart && decimalPart.length > 2) {
