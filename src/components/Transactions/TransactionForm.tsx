@@ -109,24 +109,34 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     
     // If "Other" is selected, programmatically open the date picker
     if (option === 'other') {
-      // Use setTimeout to ensure the state update completes first
-      setTimeout(() => {
+      // Use requestAnimationFrame to ensure DOM updates are complete
+      requestAnimationFrame(() => {
         if (dateInputRef.current) {
+          // Temporarily make the input visible and interactable
+          const originalStyle = dateInputRef.current.style.cssText;
+          dateInputRef.current.style.cssText = 'position: fixed; top: 50%; left: 50%; opacity: 0; pointer-events: auto; z-index: -1;';
+          
           try {
-            // Try to use showPicker() for modern browsers
-            if ('showPicker' in dateInputRef.current) {
+            // Try modern showPicker API first
+            if ('showPicker' in dateInputRef.current && typeof (dateInputRef.current as any).showPicker === 'function') {
               (dateInputRef.current as any).showPicker();
             } else {
-              // Fallback: trigger click event to open picker
+              // Fallback to click event
+              dateInputRef.current.focus();
               dateInputRef.current.click();
             }
           } catch (error) {
-            // Final fallback: focus and click
-            dateInputRef.current.focus();
-            dateInputRef.current.click();
+            console.log('Date picker trigger failed:', error);
+          } finally {
+            // Restore original hidden styling after a brief delay
+            setTimeout(() => {
+              if (dateInputRef.current) {
+                dateInputRef.current.style.cssText = originalStyle;
+              }
+            }, 100);
           }
         }
-      }, 50);
+      });
     }
   };
 
@@ -401,7 +411,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               value={formData.date}
               onChange={handleHiddenDateInputChange}
               tabIndex={-1}
-              style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+              style={{ 
+                position: 'absolute', 
+                left: '-9999px', 
+                width: '1px', 
+                height: '1px',
+                opacity: 0,
+                pointerEvents: 'none'
+              }}
+              aria-hidden="true"
             />
           </div>
 
