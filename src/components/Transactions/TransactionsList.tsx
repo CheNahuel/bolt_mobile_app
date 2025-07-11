@@ -99,7 +99,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 
-                      className="font-medium truncate" 
+                      className="text-sm font-medium truncate" 
                       title={transaction.description || transaction.category}
                     >
                       {transaction.description || transaction.category}
@@ -109,7 +109,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                     </p>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0 ml-3 flex items-center space-x-2">
+                <div className="text-right flex-shrink-0 flex items-center space-x-2">
                   <div>
                     <p className={`font-semibold text-right ${
                       transaction.type === 'income' ? 'text-success' : 'text-error'
