@@ -89,15 +89,6 @@ export function validateAmountInput(input: string): ValidationResult {
     };
   }
 
-  // Check maximum limit (999,999,999.99)
-  const MAX_AMOUNT = 999999999.99;
-  if (numericValue > MAX_AMOUNT) {
-    return {
-      isValid: false,
-      errorMessage: 'Amount cannot exceed 999.999.999,99'
-    };
-  }
-
   // Additional check for edge cases with decimal precision
   const decimalPart = trimmedInput.split('.')[1];
   if (decimalPart && decimalPart.length > 2) {

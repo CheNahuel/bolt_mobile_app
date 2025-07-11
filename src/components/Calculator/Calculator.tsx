@@ -65,11 +65,6 @@ const Calculator: React.FC<CalculatorProps> = ({
 
   // Format number for display (use comma as decimal separator, exactly 2 decimals)
   const formatNumberForDisplay = (num: number): string => {
-    // Limit to maximum value
-    if (Math.abs(num) > 999999999.99) {
-      return '999999999,99';
-    }
-    
     // Round to 2 decimal places
     const rounded = Math.round((num + Number.EPSILON) * 100) / 100;
     
@@ -80,11 +75,6 @@ const Calculator: React.FC<CalculatorProps> = ({
   // Parse display string to number (handle comma as decimal separator)
   const parseDisplayNumber = (displayStr: string): number => {
     return parseFloat(displayStr.replace(',', '.'));
-  };
-
-  // Check if value exceeds maximum
-  const exceedsMaxValue = (value: number): boolean => {
-    return Math.abs(value) > 999999999.99;
   };
 
   // Handle keyboard events
@@ -135,14 +125,6 @@ const Calculator: React.FC<CalculatorProps> = ({
       // Continue building current number
       const newDisplay = display + num;
       const newNumber = currentNumber + num;
-      
-      // Check if the resulting number would exceed maximum value
-      const potentialValue = parseDisplayNumber(newDisplay);
-      if (exceedsMaxValue(potentialValue)) {
-        setError('Value exceeds maximum limit');
-        return;
-      }
-      
       setCurrentNumber(newNumber);
       setDisplay(newDisplay);
     } else if (inputState === 'operator') {
@@ -286,17 +268,11 @@ const Calculator: React.FC<CalculatorProps> = ({
         return null;
     }
 
-    // Handle decimal precision properly and limit to 2 decimal places
+    // Handle decimal precision properly and round to 2 decimal places
     result = Math.round((result + Number.EPSILON) * 100) / 100;
 
     if (!isFinite(result)) {
       setError('Result is too large');
-      return null;
-    }
-
-    // Check for overflow (max 999999999.99)
-    if (exceedsMaxValue(result)) {
-      setError('Result exceeds maximum value');
       return null;
     }
 
@@ -404,8 +380,8 @@ const Calculator: React.FC<CalculatorProps> = ({
       return false; // No valid number to return
     }
     
-    // Check minimum value requirement and maximum value
-    return numericValue >= 0.01 && !exceedsMaxValue(numericValue);
+    // Check minimum value requirement only
+    return numericValue >= 0.01;
   };
 
   const handleOK = () => {
