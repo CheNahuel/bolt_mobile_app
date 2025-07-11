@@ -124,8 +124,9 @@ const AccountsList: React.FC<AccountsListProps> = ({
 
         {/* Empty State */}
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+          <h2 className="heading-3 mb-2">
             No accounts yet
-            No accounts yet
+          </h2>
           <p className="text-secondary mb-6">
             Create your first account to start tracking your expenses and income
           </p>

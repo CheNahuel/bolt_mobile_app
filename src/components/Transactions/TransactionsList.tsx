@@ -29,8 +29,9 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
   if (transactions.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <h2 className="heading-3 mb-2">
           No transactions yet
-          No transactions yet
+        </h2>
         <p className="text-secondary">
           Start by adding your first expense or income
         </p>
