@@ -84,14 +84,6 @@ const DatePickerModal: React.FC<DatePickerModalProps> = ({
           />
         </div>
 
-        {/* Selected Date Display */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
-          <p className="text-sm text-secondary mb-1">Selected Date</p>
-          <p className="font-semibold">
-            {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-          </p>
-        </div>
-
         <div className="flex space-x-3 mt-4">
           <button
             onClick={onClose}
