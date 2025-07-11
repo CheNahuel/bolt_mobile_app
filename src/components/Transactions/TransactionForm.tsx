@@ -126,7 +126,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             dateInputRef.current.click();
           }
         }
-      }, 10);
+      }, 50);
     }
   };
 
@@ -400,7 +400,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               type="date"
               value={formData.date}
               onChange={handleHiddenDateInputChange}
-              className="absolute w-0 h-0 opacity-0 pointer-events-none"
               tabIndex={-1}
               style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
             />
