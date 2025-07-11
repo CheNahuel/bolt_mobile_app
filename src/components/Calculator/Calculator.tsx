@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X, Delete } from 'lucide-react';
 import { validateAmountInput } from '../../utils/validation';
 
 interface CalculatorProps {
@@ -118,8 +118,10 @@ const Calculator: React.FC<CalculatorProps> = ({
         calculate();
       } else if (e.key === 'Escape') {
         handleCancel();
-      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      } else if (e.key === 'Delete') {
         clearAll();
+      } else if (e.key === 'Backspace') {
+        deleteLastChar();
       }
     };
 
@@ -318,6 +320,68 @@ const Calculator: React.FC<CalculatorProps> = ({
     resetCalculator();
   };
 
+  const deleteLastChar = () => {
+    setError(''); // Clear any errors
+    
+    if (inputState === 'initial' || display === '0,00') {
+      return; // Nothing to delete
+    }
+    
+    if (inputState === 'result') {
+      // If we're showing a result, start fresh
+      resetCalculator();
+      return;
+    }
+    
+    if (inputState === 'operator') {
+      // If we just entered an operator, go back to the previous number
+      if (previousNumber !== '') {
+        const prevNum = parseFloat(previousNumber);
+        const displayStr = formatNumberForDisplay(prevNum);
+        setDisplay(displayStr);
+        setCurrentNumber(previousNumber);
+        setPreviousNumber('');
+        setOperation(null);
+        setInputState('number');
+        setHasDecimal(displayStr.includes(','));
+        setShouldReplaceDisplay(false);
+      }
+      return;
+    }
+    
+    if (inputState === 'number' && currentNumber !== '') {
+      if (currentNumber.length === 1) {
+        // If only one character left, reset to initial state
+        setDisplay('0,00');
+        setCurrentNumber('');
+        setInputState('initial');
+        setHasDecimal(false);
+        setShouldReplaceDisplay(true);
+      } else {
+        // Remove last character
+        const newCurrentNumber = currentNumber.slice(0, -1);
+        let newDisplay = display.slice(0, -1);
+        
+        // Handle decimal point removal
+        if (display.endsWith(',')) {
+          setHasDecimal(false);
+        }
+        
+        // If we removed all digits before decimal, add a zero
+        if (newDisplay === '' || newDisplay === ',') {
+          newDisplay = '0,00';
+          setCurrentNumber('0');
+          setHasDecimal(false);
+        } else {
+          setCurrentNumber(newCurrentNumber);
+        }
+        
+        setDisplay(newDisplay);
+        setShouldReplaceDisplay(false);
+      }
+    }
+  };
+
   const handleCancel = () => {
     resetCalculator();
     onClose();
@@ -427,6 +491,10 @@ const Calculator: React.FC<CalculatorProps> = ({
     return !error && inputState === 'number' && currentNumber !== '' && operation && previousNumber !== '';
   };
 
+  const isDeleteAllowed = () => {
+    return !error && (display !== '0,00' || currentNumber !== '');
+  };
+
   // Handle clicks outside calculator
   useEffect(() => {
     if (!isOpen) return;
@@ -492,6 +560,14 @@ const Calculator: React.FC<CalculatorProps> = ({
             C
           </button>
           <button
+            onClick={deleteLastChar}
+            className="calculator-btn calculator-btn-delete"
+            disabled={!isDeleteAllowed()}
+            title="Delete last character"
+          >
+            <Delete size={18} />
+          </button>
+          <button
             onClick={() => performOperation('÷')}
             className="calculator-btn calculator-btn-operator"
             disabled={!isOperatorAllowed()}
@@ -506,14 +582,6 @@ const Calculator: React.FC<CalculatorProps> = ({
             title="Multiply"
           >
             ×
-          </button>
-          <button
-            onClick={() => performOperation('-')}
-            className="calculator-btn calculator-btn-operator"
-            disabled={!isOperatorAllowed()}
-            title="Subtract"
-          >
-            −
           </button>
 
           {/* Row 2 */}
@@ -539,12 +607,12 @@ const Calculator: React.FC<CalculatorProps> = ({
             9
           </button>
           <button
-            onClick={() => performOperation('+')}
+            onClick={() => performOperation('-')}
             className="calculator-btn calculator-btn-operator"
             disabled={!isOperatorAllowed()}
-            title="Add"
+            title="Subtract"
           >
-            +
+            −
           </button>
 
           {/* Row 3 */}
@@ -570,12 +638,12 @@ const Calculator: React.FC<CalculatorProps> = ({
             6
           </button>
           <button
-            onClick={calculate}
-            className="calculator-btn calculator-btn-equals"
-            disabled={!isEqualsAllowed()}
-            title="Calculate"
+            onClick={() => performOperation('+')}
+            className="calculator-btn calculator-btn-operator"
+            disabled={!isOperatorAllowed()}
+            title="Add"
           >
-            =
+            +
           </button>
 
           {/* Row 4 */}
@@ -599,6 +667,14 @@ const Calculator: React.FC<CalculatorProps> = ({
             disabled={!isNumberAllowed()}
           >
             3
+          </button>
+          <button
+            onClick={calculate}
+            className="calculator-btn calculator-btn-equals"
+            disabled={!isEqualsAllowed()}
+            title="Calculate"
+          >
+            =
           </button>
 
           {/* Row 5 */}
