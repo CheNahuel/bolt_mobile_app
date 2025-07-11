@@ -101,6 +101,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     if (category) {
       setFormData(prev => ({ ...prev, category: category.name }));
       setStep('details');
+      // Automatically open calculator after category selection
+      setShowCalculator(true);
     }
   };
 
