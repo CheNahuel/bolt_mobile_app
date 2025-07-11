@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { X, Minus, Plus, Calendar } from 'lucide-react';
 import Calculator from '../Calculator/Calculator';
+import DatePickerModal from '../Common/DatePickerModal';
 import { Transaction, Category, Account } from '../../types';
 import { generateId, formatDateInput, parseAmount } from '../../utils/helpers';
 import { validateAmountInput, formatAmountInput } from '../../utils/validation';
@@ -77,32 +78,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   const [dateOption, setDateOption] = useState<DateOption>(initialDateOption);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCalculator, setShowCalculator] = useState(false);
-  const dateInputRef = useRef<HTMLInputElement>(null);
-
-  // Browser detection for debugging
-  React.useEffect(() => {
-    console.log('🌐 Browser info:', {
-      userAgent: navigator.userAgent,
-      platform: navigator.platform,
-      vendor: navigator.vendor,
-      language: navigator.language,
-      cookieEnabled: navigator.cookieEnabled,
-      onLine: navigator.onLine
-    });
-    
-    // Check if showPicker is supported
-    const testInput = document.createElement('input');
-    testInput.type = 'date';
-    console.log('📱 showPicker support:', 'showPicker' in testInput);
-    console.log('📱 HTMLInputElement prototype has showPicker:', 'showPicker' in HTMLInputElement.prototype);
-    
-    // Check if we're in a secure context (required for some APIs)
-    console.log('🔒 Secure context:', window.isSecureContext);
-    
-    // Check if date input is supported
-    testInput.value = '2023-01-01';
-    console.log('📅 Date input support:', testInput.value === '2023-01-01');
-  }, []);
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
 
   // Initialize form data and step properly
   React.useEffect(() => {
@@ -139,79 +115,20 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       setFormData(prev => ({ ...prev, date: newDate }));
     }
     
-    // If "Other" is selected, programmatically open the date picker
+    // If "Other" is selected, open the custom date picker modal
     if (option === 'other') {
-      console.log('🎯 "Other" selected - attempting to trigger date picker');
-      console.log('📍 dateInputRef.current exists:', !!dateInputRef.current);
-      
-      setTimeout(() => {
-        if (dateInputRef.current) {
-          console.log('✅ dateInputRef.current is available in setTimeout');
-          console.log('🔧 Current input element:', dateInputRef.current);
-          console.log('🎨 Original style:', dateInputRef.current.style.cssText);
-          
-          // Store original styles
-          const originalStyle = dateInputRef.current.style.cssText;
-          
-          // Temporarily make the input accessible for interaction
-          dateInputRef.current.style.cssText = `
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            opacity: 0 !important;
-            pointer-events: auto !important;
-            z-index: 9999 !important;
-            width: 1px !important;
-            height: 1px !important;
-          `;
-          
-          console.log('🎨 Applied temporary style:', dateInputRef.current.style.cssText);
-          
-          try {
-            console.log('🚀 Attempting to trigger date picker...');
-            
-            // Use focus and click method to avoid cross-origin iframe issues
-            console.log('🖱️ Using focus and click method');
-            dateInputRef.current.focus();
-            console.log('🎯 Focus applied');
-            dateInputRef.current.click();
-            console.log('🖱️ Click applied');
-            console.log('✅ Date picker trigger completed successfully');
-          } catch (error) {
-            console.error('❌ Date picker trigger failed:', error);
-            console.error('Error details:', {
-              name: error.name,
-              message: error.message,
-              stack: error.stack
-            });
-          }
-          
-          // Restore original styling after a brief delay
-          setTimeout(() => {
-            if (dateInputRef.current) {
-              console.log('🔄 Restoring original styles');
-              dateInputRef.current.style.cssText = originalStyle;
-              console.log('✅ Original styles restored');
-            }
-          }, 100);
-        } else {
-          console.error('❌ dateInputRef.current is null in setTimeout');
-        }
-      }, 10);
-    } else {
-      console.log('ℹ️ Option is not "other", skipping date picker trigger');
+      console.log('🎯 "Other" selected - opening custom date picker modal');
+      setShowDatePickerModal(true);
     }
   };
 
-  const handleHiddenDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('📅 Hidden date input changed:', e.target.value);
-    const selectedDate = e.target.value;
-    setFormData(prev => ({ ...prev, date: selectedDate }));
+  const handleDateSelect = (selectedDate: Date) => {
+    console.log('📅 Date selected from modal:', selectedDate);
+    const dateString = formatDateInput(selectedDate);
+    setFormData(prev => ({ ...prev, date: dateString }));
     
     // Update dateOption based on the selected date
-    const dateObj = new Date(selectedDate);
-    const newDateOption = getDateOption(dateObj);
+    const newDateOption = getDateOption(selectedDate);
     console.log('🔄 Updating dateOption to:', newDateOption);
     setDateOption(newDateOption);
   };
@@ -470,70 +387,18 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               </button>
             </div>
 
-            {/* Hidden Date Picker - Always present but visually hidden */}
-            
-            {/* DEBUG: Test button - remove this after debugging */}
-            <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded">
-              <p className="text-xs text-yellow-800 mb-2">DEBUG MODE - Remove after fixing</p>
-              <button
-                type="button"
-                onClick={() => {
-                  console.log('🧪 DEBUG: Test button clicked');
-                  console.log('🧪 dateInputRef.current:', dateInputRef.current);
-                  if (dateInputRef.current) {
-                    console.log('🧪 Attempting direct showPicker call...');
-                    try {
-                      console.log('🧪 Using focus and click method...');
-                      dateInputRef.current.style.position = 'fixed';
-                      dateInputRef.current.style.top = '50%';
-                      dateInputRef.current.style.left = '50%';
-                      dateInputRef.current.style.opacity = '0.1';
-                      dateInputRef.current.style.pointerEvents = 'auto';
-                      dateInputRef.current.style.zIndex = '10000';
-                      dateInputRef.current.focus();
-                      dateInputRef.current.click();
-                      setTimeout(() => {
-                        if (dateInputRef.current) {
-                          dateInputRef.current.style.cssText = `
-                            position: absolute; 
-                            left: -9999px; 
-                            width: 1px; 
-                            height: 1px;
-                            opacity: 0;
-                            pointer-events: none;
-                            visibility: hidden;
-                          `;
-                        }
-                      }, 1000);
-                    } catch (error) {
-                      console.error('🧪 DEBUG test failed:', error);
-                    }
-                  }
-                }}
-                className="btn btn-sm bg-yellow-200 text-yellow-800 border-yellow-400"
-              >
-                🧪 Test Date Picker
-              </button>
+            {/* Display selected date */}
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-secondary mb-1">Selected Date</p>
+              <p className="font-semibold">
+                {new Date(formData.date).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
             </div>
-            
-            <input
-              ref={dateInputRef}
-              type="date"
-              value={formData.date}
-              onChange={handleHiddenDateInputChange}
-              onFocus={() => console.log('📅 Hidden date input focused')}
-              onClick={() => console.log('🖱️ Hidden date input clicked')}
-              tabIndex={-1}
-              style={{ 
-                position: 'absolute', 
-                left: '-9999px', 
-                width: '1px', 
-                height: '1px',
-                opacity: 0,
-                pointerEvents: 'none',
-                visibility: 'hidden'
-              }}
-            />
           </div>
 
           <div className="form-group">
@@ -573,6 +438,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         onClose={handleCalculatorClose}
         onResult={handleCalculatorResult}
         initialValue={formData.amount}
+      />
+
+      {/* Date Picker Modal */}
+      <DatePickerModal
+        isOpen={showDatePickerModal}
+        onClose={() => setShowDatePickerModal(false)}
+        onSelectDate={handleDateSelect}
+        selectedDate={new Date(formData.date)}
       />
     </div>
   );
