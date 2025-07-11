@@ -114,32 +114,45 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     
     // If "Other" is selected, programmatically open the date picker
     if (option === 'other') {
-      // Use setTimeout to ensure state updates are complete
       setTimeout(() => {
         if (dateInputRef.current) {
+          // Store original styles
+          const originalStyle = dateInputRef.current.style.cssText;
+          
+          // Temporarily make the input accessible for interaction
+          dateInputRef.current.style.cssText = `
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            opacity: 0 !important;
+            pointer-events: auto !important;
+            z-index: 9999 !important;
+            width: 1px !important;
+            height: 1px !important;
+          `;
+          
           try {
             // Try modern showPicker API first
             if ('showPicker' in dateInputRef.current && typeof (dateInputRef.current as any).showPicker === 'function') {
               (dateInputRef.current as any).showPicker();
             } else {
-              // Fallback: temporarily make visible and trigger click
-              const originalStyle = dateInputRef.current.style.cssText;
-              dateInputRef.current.style.cssText = 'position: fixed; top: 50%; left: 50%; opacity: 0; pointer-events: auto; z-index: 1000;';
+              // Fallback: focus and click
               dateInputRef.current.focus();
               dateInputRef.current.click();
-              
-              // Restore original styling after a brief delay
-              setTimeout(() => {
-                if (dateInputRef.current) {
-                  dateInputRef.current.style.cssText = originalStyle;
-                }
-              }, 100);
             }
           } catch (error) {
             console.log('Date picker trigger failed:', error);
           }
+          
+          // Restore original styling after a brief delay
+          setTimeout(() => {
+            if (dateInputRef.current) {
+              dateInputRef.current.style.cssText = originalStyle;
+            }
+          }, 100);
         }
-      }, 50);
+      }, 10);
     }
   };
 
@@ -420,7 +433,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 width: '1px', 
                 height: '1px',
                 opacity: 0,
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                visibility: 'hidden'
               }}
               aria-hidden="true"
             />
