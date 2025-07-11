@@ -533,7 +533,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                 pointerEvents: 'none',
                 visibility: 'hidden'
               }}
-              aria-hidden="true"
             />
           </div>
 
