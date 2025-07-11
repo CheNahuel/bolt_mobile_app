@@ -87,25 +87,15 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-4">
             <div className="card">
-              <h3 className="text-sm text-secondary mb-1 text-field">Total Income</h3>
-              <p className="text-xl font-bold text-success amount">
-                {totalIncome.toLocaleString('de-DE', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                  style: 'currency',
-                  currency: 'EUR'
-                }).replace('€', '$')}
+              <h3 className="text-sm text-secondary mb-1">Total Income</h3>
+              <p className="text-xl font-bold text-success text-right">
+                {formatCurrency(totalIncome, 'USD')}
               </p>
             </div>
             <div className="card">
-              <h3 className="text-sm text-secondary mb-1 text-field">Total Expenses</h3>
-              <p className="text-xl font-bold text-error amount">
-                {totalExpenses.toLocaleString('de-DE', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                  style: 'currency',
-                  currency: 'EUR'
-                }).replace('€', '$')}
+              <h3 className="text-sm text-secondary mb-1">Total Expenses</h3>
+              <p className="text-xl font-bold text-error text-right">
+                {formatCurrency(totalExpenses, 'USD')}
               </p>
             </div>
           </div>
@@ -113,7 +103,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
           {/* Expense Breakdown */}
           {expenseData.length > 0 && (
             <div className="card">
-              <h3 className="heading-4 mb-4 text-field">Expense Breakdown</h3>
+              <h3 className="heading-4 mb-4">Expense Breakdown</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -132,12 +122,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     </Pie>
                     <Tooltip
                       formatter={(value: number) => [
-                        value.toLocaleString('de-DE', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                          style: 'currency',
-                          currency: 'EUR'
-                        }).replace('€', '$'),
+                        formatCurrency(value, 'USD'),
                         'Amount'
                       ]}
                     />
@@ -152,7 +137,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                       style={{ backgroundColor: item.color }}
                     />
                     <span 
-                      className="text-sm text-secondary truncate flex-1 min-w-0 content-boundary" 
+                      className="text-sm text-secondary truncate flex-1 min-w-0" 
                       title={`${item.icon} ${item.name}`}
                     >
                       {item.icon} {item.name}
@@ -166,7 +151,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
           {/* Monthly Trends */}
           {monthlyTrends.length > 1 && (
             <div className="card">
-              <h3 className="heading-4 mb-4 text-field">Monthly Trends</h3>
+              <h3 className="heading-4 mb-4">Monthly Trends</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={monthlyTrends}>
@@ -182,12 +167,7 @@ const Charts: React.FC<ChartsProps> = ({ accounts, transactions, categories }) =
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip
                       formatter={(value: number, name: string) => [
-                        value.toLocaleString('de-DE', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                          style: 'currency',
-                          currency: 'EUR'
-                        }).replace('€', '$'),
+                        formatCurrency(value, 'USD'),
                         name === 'income' ? 'Income' : 'Expenses'
                       ]}
                       labelFormatter={(value) => {

@@ -127,7 +127,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
           <h2 className="heading-3 mb-2">
             No accounts yet
           </h2>
-          <p className="text-secondary mb-6 content-boundary">
+          <p className="text-secondary mb-6">
             Create your first account to start tracking your expenses and income
           </p>
           <button
@@ -135,7 +135,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
             className="btn btn-primary btn-lg"
           >
             <Plus size={20} />
-            <span className="text-field">Add Account</span>
+            <span>Add Account</span>
           </button>
         </div>
       </div>
@@ -184,7 +184,7 @@ const AccountsList: React.FC<AccountsListProps> = ({
               className="btn btn-outline w-full p-6 border-2 border-dashed min-h-[120px] flex flex-col items-center justify-center space-y-2"
             >
               <Plus size={20} />
-              <span className="font-medium text-field">Add New Account</span>
+              <span className="font-medium">Add New Account</span>
             </button>
           </div>
         </div>

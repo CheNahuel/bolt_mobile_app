@@ -32,7 +32,7 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
         <h3 className="heading-3 mb-2">
           No transactions yet
         </h3>
-        <p className="text-secondary content-boundary">
+        <p className="text-secondary">
           Start by adding your first expense or income
         </p>
       </div>
@@ -99,25 +99,25 @@ const TransactionsList: React.FC<TransactionsListProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 
-                      className="font-medium truncate content-boundary" 
+                      className="font-medium truncate" 
                       title={transaction.description || transaction.category}
                     >
                       {transaction.description || transaction.category}
                     </h4>
-                    <p className="text-sm text-muted date">
+                    <p className="text-sm text-muted">
                       {formatDate(transaction.date)}
                     </p>
                   </div>
                 </div>
                 <div className="text-right flex-shrink-0 ml-3 flex items-center space-x-2">
                   <div>
-                    <p className={`font-semibold amount ${
+                    <p className={`font-semibold text-right ${
                       transaction.type === 'income' ? 'text-success' : 'text-error'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'}
                       {formatCurrency(transaction.amount, currency)}
                     </p>
-                    <p className="text-xs text-muted truncate text-field" title={transaction.category}>
+                    <p className="text-xs text-muted truncate text-right" title={transaction.category}>
                       {transaction.category}
                     </p>
                   </div>

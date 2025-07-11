@@ -170,6 +170,11 @@ body {
   color: var(--color-error);
 }
 
+/* Text alignment utilities */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
 /* Layout Grid System */
 .grid-container {
   display: grid;
