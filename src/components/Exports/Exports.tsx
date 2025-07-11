@@ -136,20 +136,31 @@ ${transactions
       
       <div className="flex-1 pb-20">
         <div className="container py-4">
-        <div className="max-w-md mx-auto space-y-6">
-          {/* Summary */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Summary</h2>
-            <div className="space-y-3">
-                <span className="text-gray-600">Transactions</span>
-                <span className="font-medium text-right">{transactions.length}</span>
-                <span className="font-medium text-right">{accounts.length}</span>
-              </div>
-                <span className="text-gray-600">Total Income</span>
-                <span className="text-gray-600">Total Expenses</span>
-                <span className="font-medium text-red-600 text-right">
-                  {formatCurrency(totalExpenses, 'USD')}
-                </span>
+          <div className="max-w-md mx-auto space-y-6">
+            {/* Summary */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4">Summary</h2>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Transactions</span>
+                  <span className="font-medium text-right">{transactions.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Accounts</span>
+                  <span className="font-medium text-right">{accounts.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Income</span>
+                  <span className="font-medium text-green-600 text-right">
+                    {formatCurrency(totalIncome, 'USD')}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Expenses</span>
+                  <span className="font-medium text-red-600 text-right">
+                    {formatCurrency(totalExpenses, 'USD')}
+                  </span>
+                </div>
               </div>
               <div className="border-t pt-3">
                 <div className="flex justify-between">
@@ -158,49 +169,53 @@ ${transactions
                     totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'
                   } text-right`}>
                     {formatCurrency(totalIncome - totalExpenses, 'USD')}
-
-          {/* Export Options */}
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">Export Data</h2>
-            <div className="space-y-3">
-              <button
-                onClick={generateCSV}
-                disabled={transactions.length === 0}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
-              >
-                <Download size={20} />
-                <span>Download CSV</span>
-              </button>
-              
-              <button
-                onClick={generateReport}
-                disabled={transactions.length === 0}
-                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
-              >
-                <FileText size={20} />
-                <span>Generate Report</span>
-              </button>
-              
-              <button
-                onClick={shareData}
-                disabled={transactions.length === 0}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
-              >
-                <Share size={20} />
-                <span>Share Summary</span>
-              </button>
+                  </span>
+                </div>
+              </div>
             </div>
+
+            {/* Export Options */}
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4">Export Data</h2>
+              <div className="space-y-3">
+                <button
+                  onClick={generateCSV}
+                  disabled={transactions.length === 0}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
+                >
+                  <Download size={20} />
+                  <span>Download CSV</span>
+                </button>
+                
+                <button
+                  onClick={generateReport}
+                  disabled={transactions.length === 0}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
+                >
+                  <FileText size={20} />
+                  <span>Generate Report</span>
+                </button>
+                
+                <button
+                  onClick={shareData}
+                  disabled={transactions.length === 0}
+                  className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white p-4 rounded-xl font-medium flex items-center justify-center space-x-2 transition-colors"
+                >
+                  <Share size={20} />
+                  <span>Share Summary</span>
+                </button>
+              </div>
+            </div>
+
+            {transactions.length === 0 && (
+              <div className="text-center p-8">
+                <div className="text-4xl mb-2">📄</div>
+                <p className="text-gray-600">
+                  No data to export. Add some transactions first.
+                </p>
+              </div>
+            )}
           </div>
-
-          {transactions.length === 0 && (
-            <div className="text-center p-8">
-              <div className="text-4xl mb-2">📄</div>
-              <p className="text-gray-600">
-                No data to export. Add some transactions first.
-              </p>
-            </div>
-          )}
-        </div>
         </div>
       </div>
     </div>
