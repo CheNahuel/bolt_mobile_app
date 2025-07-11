@@ -115,6 +115,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           try {
             // Try to use showPicker() for modern browsers
             if ('showPicker' in dateInputRef.current) {
+              console.log("HERE")
               (dateInputRef.current as any).showPicker();
             } else {
               // Fallback: trigger click event to open picker
