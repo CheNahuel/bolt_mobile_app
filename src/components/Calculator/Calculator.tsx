@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Delete } from 'lucide-react';
-import { validateAmountInput } from '../../utils/validation';
 
 interface CalculatorProps {
   isOpen: boolean;
@@ -83,6 +82,11 @@ const Calculator: React.FC<CalculatorProps> = ({
     return parseFloat(displayStr.replace(',', '.'));
   };
 
+  // Check if value exceeds maximum
+  const exceedsMaxValue = (value: number): boolean => {
+    return Math.abs(value) > 999999999.99;
+  };
+
   // Handle keyboard events
   useEffect(() => {
     if (!isOpen) return;
@@ -122,13 +126,6 @@ const Calculator: React.FC<CalculatorProps> = ({
     
     if (inputState === 'initial' || shouldReplaceDisplay || inputState === 'result') {
       // First number input, replacing existing value, or starting fresh after result
-      // Validate the new single digit input
-      const validationResult = validateAmountInput(num);
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
-        return;
-      }
-      
       setCurrentNumber(num);
       setDisplay(num);
       setInputState('number');
@@ -137,28 +134,19 @@ const Calculator: React.FC<CalculatorProps> = ({
     } else if (inputState === 'number') {
       // Continue building current number
       const newDisplay = display + num;
+      const newNumber = currentNumber + num;
       
-      // Convert comma-decimal format to dot-decimal for validation
-      const validationInput = newDisplay.replace(',', '.');
-      const validationResult = validateAmountInput(validationInput);
-      
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
+      // Check if the resulting number would exceed maximum value
+      const potentialValue = parseDisplayNumber(newDisplay);
+      if (exceedsMaxValue(potentialValue)) {
+        setError('Value exceeds maximum limit');
         return;
       }
       
-      const newNumber = currentNumber + num;
       setCurrentNumber(newNumber);
       setDisplay(newDisplay);
     } else if (inputState === 'operator') {
       // Start new number after operator
-      // Validate the new single digit input
-      const validationResult = validateAmountInput(num);
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
-        return;
-      }
-      
       setCurrentNumber(num);
       setDisplay(num);
       setInputState('number');
@@ -172,12 +160,6 @@ const Calculator: React.FC<CalculatorProps> = ({
     
     if (inputState === 'initial' || shouldReplaceDisplay) {
       // First input is decimal point or replacing existing value
-      const validationResult = validateAmountInput('0.');
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
-        return;
-      }
-      
       setCurrentNumber('0.');
       setDisplay('0,');
       setInputState('number');
@@ -187,25 +169,11 @@ const Calculator: React.FC<CalculatorProps> = ({
       // Add decimal to current number
       const newNumber = currentNumber === '' ? '0.' : currentNumber + '.';
       const newDisplay = display === '' ? '0,' : display + ',';
-      
-      // Validate the new number with decimal
-      const validationResult = validateAmountInput(newNumber);
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
-        return;
-      }
-      
       setCurrentNumber(newNumber);
       setDisplay(newDisplay);
       setHasDecimal(true);
     } else if (inputState === 'operator') {
       // Start new decimal number after operator
-      const validationResult = validateAmountInput('0.');
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
-        return;
-      }
-      
       setCurrentNumber('0.');
       setDisplay('0,');
       setInputState('number');
@@ -213,12 +181,6 @@ const Calculator: React.FC<CalculatorProps> = ({
       setShouldReplaceDisplay(false);
     } else if (inputState === 'result') {
       // Start fresh decimal after result - clear previous result
-      const validationResult = validateAmountInput('0.');
-      if (!validationResult.isValid) {
-        setError(validationResult.errorMessage || 'Invalid input');
-        return;
-      }
-      
       setCurrentNumber('0.');
       setDisplay('0,');
       setInputState('number');
@@ -442,14 +404,8 @@ const Calculator: React.FC<CalculatorProps> = ({
       return false; // No valid number to return
     }
     
-    // Check minimum value requirement
-    if (numericValue < 0.01) {
-      return false;
-    }
-    
-    // Validate using the validation utility (convert comma to dot for validation)
-    const validationResult = validateAmountInput(valueToValidate.replace(',', '.'));
-    return validationResult.isValid;
+    // Check minimum value requirement and maximum value
+    return numericValue >= 0.01 && !exceedsMaxValue(numericValue);
   };
 
   const handleOK = () => {
@@ -705,7 +661,7 @@ const Calculator: React.FC<CalculatorProps> = ({
           {/* Row 5 */}
           <button
             onClick={() => inputNumber('0')}
-            className="calculator-btn calculator-btn-number calculator-btn-zero"
+            className="calculator-btn calculator-btn-number"
             disabled={!isNumberAllowed()}
           >
             0
@@ -739,10 +695,6 @@ const Calculator: React.FC<CalculatorProps> = ({
       </div>
     </div>
   );
-};
-
-const exceedsMaxValue = (num: number): boolean => {
-  return Math.abs(num) > 999999999.99;
 };
 
 export default Calculator;
