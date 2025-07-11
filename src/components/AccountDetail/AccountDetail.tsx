@@ -31,7 +31,6 @@ const AccountDetail: React.FC<AccountDetailProps> = ({
   const accountTransactions = transactions.filter(t => t.accountId === account.id);
   const balance = accountTransactions.reduce((sum, transaction) => {
     const amount = new Decimal(transaction.amount);
-    if (transaction.type === 'income') return sum + transaction.amount;
     if (transaction.type === 'income') return sum.plus(amount);
     if (transaction.type === 'expense') return sum.minus(amount);
     if (transaction.type === 'transfer') {
