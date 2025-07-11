@@ -412,7 +412,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               type="submit"
               className="btn btn-primary flex-1"
             >
-              <span>{transaction ? 'Update Transaction' : 'Save Transaction'}</span>
+              <span>{transaction ? 'Update' : 'Save'}</span>
             </button>
           </div>
         </form>
