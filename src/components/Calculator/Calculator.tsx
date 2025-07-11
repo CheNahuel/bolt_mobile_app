@@ -494,18 +494,6 @@ const Calculator: React.FC<CalculatorProps> = ({
   return (
     <div className="calculator-overlay">
       <div ref={calculatorRef} className="calculator-popup">
-        {/* Header */}
-        <div className="calculator-header">
-          <h3 className="calculator-title">Calculator</h3>
-          <button
-            onClick={handleCancel}
-            className="calculator-close"
-            aria-label="Close calculator"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
         {/* Display */}
         <div className="calculator-display">
           <div className="calculator-display-text">

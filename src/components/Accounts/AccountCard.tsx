@@ -60,14 +60,14 @@ const AccountCard: React.FC<AccountCardProps> = ({
 
       {/* Monthly Breakdown */}
       <div className="border-t border-gray-200 pt-3">
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="text-center">
+        <div className="flex space-x-4 text-sm">
+          <div className="text-center flex-1">
             <p className="text-muted mb-1">Income</p>
             <p className="font-semibold text-success">
               +{formatCurrency(monthlyIncome, account.currency)}
             </p>
           </div>
-          <div className="text-center">
+          <div className="text-center flex-1">
             <p className="text-muted mb-1">Expenses</p>
             <p className="font-semibold text-error">
               -{formatCurrency(monthlyExpenses, account.currency)}
