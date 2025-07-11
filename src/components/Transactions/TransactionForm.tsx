@@ -350,11 +350,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
             </label>
             
             {/* Date Option Buttons */}
-            <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="flex space-x-3 mb-3">
               <button
                 type="button"
                 onClick={() => handleDateOptionChange('today')}
-                className={`btn btn-sm ${
+                className={`btn btn-sm flex-1 ${
                   dateOption === 'today' 
                     ? 'btn-primary' 
                     : 'btn-outline'
@@ -365,7 +365,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleDateOptionChange('yesterday')}
-                className={`btn btn-sm ${
+                className={`btn btn-sm flex-1 ${
                   dateOption === 'yesterday' 
                     ? 'btn-primary' 
                     : 'btn-outline'
@@ -376,7 +376,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
               <button
                 type="button"
                 onClick={() => handleDateOptionChange('other')}
-                className={`btn btn-sm ${
+                className={`btn btn-sm flex-1 ${
                   dateOption === 'other' 
                     ? 'btn-primary' 
                     : 'btn-outline'
